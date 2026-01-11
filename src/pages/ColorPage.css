@@ -1,0 +1,127 @@
+.colorpage {
+  width: 100%; /* ✅ full width */
+  max-width: 1400px; /* optional: nice centered container */
+  margin: 0 auto; /* center the container */
+  padding: 100px 60px 40px; /* ✅ extra top padding for navbar gap */
+  box-sizing: border-box;
+}
+
+.colorpage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.colorpage-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+/* ---------- FIXED GRID ICONS ---------- */
+.grid-icons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.grid-icons span {
+  font-size: 26px;
+  width: 28px; /* FIXED SIZE SO ICONS DON'T MOVE */
+  display: inline-flex;
+  justify-content: center;
+  cursor: pointer;
+  color: #888;
+  transition: 0.2s ease;
+}
+
+.grid-icons span.active,
+.grid-icons span:hover {
+  color: #000;
+  transform: scale(1.1);
+}
+
+/* ---------- GRID LAYOUTS ---------- */
+.product-grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 35px;
+}
+
+.product-grid-four {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  height: 900px;
+}
+
+.product-grid-six {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+  height: 500px;
+}
+
+/* ---------- PRODUCT CARD ---------- */
+.product-card {
+  background: #fff;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  border-radius: 0 !important;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+/* ---------- IMAGE SIZES FIX ---------- */
+.product-image {
+  width: 100%;
+  height: 380px;
+  overflow: hidden;
+  border-bottom: 1px solid #eee;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* BIGGER IMAGE FOR 2-COLUMN VIEW */
+.product-grid-two .product-card {
+  height: 700px;
+  width: 550px;
+}
+
+.product-grid-two .product-image {
+  height: 580px;
+  object-position: top;
+}
+
+/* ---------- PRODUCT TEXT ---------- */
+.product-info {
+  padding: 15px;
+}
+
+.tag {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.name {
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.price {
+  font-weight: 600;
+  font-size: 1rem;
+}

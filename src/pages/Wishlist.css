@@ -1,0 +1,164 @@
+/* existing .wishlist-card stays, just maybe slightly taller */
+.wishlist-page {
+  width: 100%;
+  min-height: calc(100vh - 120px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 5%;
+  margin-top: 5px;
+}
+
+.wishlist-card {
+  position: relative;
+  background: #fff;
+  border-radius: 0px;
+  overflow: hidden;
+
+  border: 1px solid #eee;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  transition: 0.3s ease;
+  height: 400px;
+  /* a bit taller to fit button + brand */
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+  width: 250px;
+}
+
+.wishlist-card img {
+  width: 100%;
+  height: 240px;
+  /* slightly smaller so text + button fit nicely */
+  object-fit: cover;
+  object-position: top;
+}
+
+/* NAME */
+.wishlist-card h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #222;
+  margin: 8px 10px 2px;
+  text-align: left;
+}
+
+/* ✅ BRAND NAME */
+.wishlist-brand {
+  font-size: 0.9rem;
+  color: #777;
+  margin: 0 10px 2px;
+  text-align: left;
+}
+
+/* ✅ PRICE (separate class, not same as brand) */
+.wishlist-price {
+  color: #222;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 2px 10px 8px;
+  text-align: left;
+}
+
+/* ✅ ORANGE ADD TO CART BUTTON */
+.wishlist-add-btn {
+  margin: 0 10px 12px;
+  padding: 6px 0;
+  background-color: #f57c00;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.wishlist-add-btn:hover {
+  background-color: #e86f00;
+  transform: translateY(-1px);
+}
+
+.wishlist-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 40px;
+  text-align: center;
+  width: 100%;
+}
+
+.wishlist-items {
+  display: grid;
+  grid-template-columns: repeat(4, 250px);
+  justify-content: center !important;
+  /* horizontally center */
+  gap: 35px;
+  margin-top: 20px;
+}
+
+.wishlist-card {
+  cursor: pointer;
+  /* 👈 finger cursor on hover */
+}
+
+/* Same idea as .cart-content – center the box */
+.wishlist-content {
+  width: 100%;
+  max-width: 900px;
+  /* same as cart-content */
+  margin: 0 auto;
+  /* center horizontally */
+}
+
+/* Empty state layout – match Cart empty style */
+.empty-wishlist {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 80px;
+  text-align: center;
+}
+
+/* Heading + paragraph styling inside empty-wishlist */
+.empty-wishlist h3 {
+  color: #4a5733;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.empty-wishlist p {
+  color: #6b705c;
+  font-size: 1rem;
+  margin-bottom: 25px;
+  max-width: 400px;
+}
+
+/* Small delete button on wishlist card */
+.wishlist-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  color: #444;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.wishlist-delete-btn:hover {
+  background: #ff4d4f;
+  color: #fff;
+  transform: scale(1.05);
+}

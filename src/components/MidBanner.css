@@ -1,0 +1,85 @@
+.hero-banner {
+  width: 100%;
+  height: 350px;
+
+  background-image: url('./images/midbanner.png'); /* <- replace with your image */
+  background-size: cover;
+  background-position: center;
+
+  display: flex;
+  justify-content: flex-end; /* text goes right side */
+  align-items: center;
+  background-position: top;
+  padding-right: 120px;
+  box-sizing: border-box;
+  position: relative;
+  margin-top: 25px;
+}
+
+/* CONTENT */
+.hero-content {
+  text-align: left;
+  color: black;
+}
+
+/* MARIA.B */
+.hero-subtitle {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  margin: 0;
+}
+
+/* LUXE */
+.hero-title {
+  font-size: 92px;
+  font-weight: 700;
+  margin: 10px 0 0;
+}
+
+/* UNSTITCHED WINTER */
+.hero-winter {
+  font-size: 26px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+/* SHOP BUTTON */
+.hero-btn {
+  margin-top: 24px;
+  padding: 12px 28px;
+  border-radius: 30px;
+  border: 2px solid black;
+  background: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.hero-btn:hover {
+  background: black;
+  color: white;
+}
+
+/* ------------- MOBILE RESPONSIVE ------------- */
+@media (max-width: 768px) {
+  .hero-banner {
+    height: 380px;
+    justify-content: center;
+    padding-right: 0;
+    background-position: top;
+  }
+
+  .hero-title {
+    font-size: 58px;
+  }
+
+  .hero-winter {
+    font-size: 18px;
+  }
+
+  .hero-subtitle {
+    font-size: 20px;
+  }
+}

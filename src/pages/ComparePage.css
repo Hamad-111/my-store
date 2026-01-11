@@ -1,0 +1,450 @@
+/* ===== PAGE ===== */
+.compare-page {
+  padding: 28px 6%;
+  background: #f8f9fa;
+  margin-top: 10px;
+  font-family: Arial, sans-serif;
+}
+
+/* ===== MAIN LAYOUT: LEFT + RIGHT ===== */
+.compare-main {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* LEFT BASE PRODUCT WIDTH */
+.compare-left-col {
+  width: 28%;
+}
+
+/* RIGHT 3 SLOT AREA */
+.compare-right-col {
+  width: 72%;
+}
+
+/* ===== BASE PRODUCT CARD ===== */
+.comparison-card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 10px;
+  height: 430px;
+  display: flex;
+  width: 300px;
+  flex-direction: column;
+  align-items: center;
+  margin-left: -40px;
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.base-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.compare-image {
+  width: 200px;
+  height: 220px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.base-brand {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.compare-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: #d42525;
+  margin-bottom: 5px;
+}
+
+.btn-add {
+  margin-top: 4px;
+  background: #ff7a00;
+  border: none;
+  width: 200px;
+  height: 40px;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn-add:hover {
+  background: #e56c00;
+}
+
+/* ===== RIGHT SLOTS ROW ===== */
+.compare-slots-row {
+  display: flex;
+  gap: 5px;
+}
+
+/* EACH SLOT */
+.compare-slot {
+  flex: 1;
+}
+
+/* ===== SLOT CARD ===== */
+.slot-inner {
+  background: #fff;
+  height: 450px;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Slot close button */
+.slot-header button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* FILLED SLOT CARD PRODUCT DISPLAY */
+.slot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 26px;
+}
+
+.slot-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.slot-thumb {
+  width: 180px;
+  height: 200px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.slot-brand {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+/* Price */
+.slot-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #d42525;
+  margin-bottom: 6px;
+}
+
+/* Button stays inside bottom */
+.slot-card .btn-add {
+  margin-bottom: 10px;
+}
+
+/* ===== EMPTY SLOT FILTER AREA ===== */
+.compare-with {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.slot-filters-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.slot-filter select {
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  border: 1px solid #ddd;
+}
+
+/* ===== SUGGESTIONS LIST ===== */
+.compare-suggestions {
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  margin-top: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+}
+
+.suggestion-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.suggestion-item img {
+  width: 48px;
+  height: 55px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.suggestion-item:hover {
+  background: #f8f3eb;
+}
+
+.sugg-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+}
+
+.sugg-brand {
+  font-size: 11px;
+  color: #777;
+}
+
+.sugg-sub {
+  font-size: 11px;
+  color: #d42525;
+}
+
+/* Hint text */
+.suggestion-hint {
+  text-align: center;
+  font-size: 12px;
+  color: #777;
+  margin-top: 12px;
+}
+/* ===== SLOT width FIX ===== */
+.compare-slot {
+  flex: 0 0 31%; /* exactly 3 equal cards */
+  max-width: 31%;
+}
+
+/* Ensures consistent padded content */
+.slot-inner {
+  height: 450px;
+  padding: 14px 12px;
+}
+/* ===== LAYOUT FIX: Reduce gap ===== */
+.compare-main {
+  display: flex;
+  gap: 20px; /* Reduced gap */
+}
+
+/* Remove margin-left messing layout */
+.comparison-card {
+  margin-left: 0 !important;
+}
+
+/* Same width + alignment */
+.compare-left-col {
+  width: 26%;
+}
+
+.compare-right-col {
+  width: 74%;
+}
+
+/* ===== SLOT width balanced ===== */
+.compare-slot {
+  flex: 0 0 32%; /* tighter layout */
+  max-width: 32%;
+}
+
+/* ===== SLOT INNER: Fixed height properly managed ===== */
+.slot-inner {
+  height: 430px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden; /* content never goes out card */
+  padding: 12px;
+  text-align: center;
+}
+
+/* LABEL & FILTERS â€“ stay inside card properly */
+.slot-label {
+  margin-top: 6px;
+}
+
+.slot-filters-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 6px 0 8px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* Filters sizing */
+.slot-filter select {
+  width: 90px;
+  padding: 6px 6px;
+  font-size: 11px;
+}
+
+/* ===== SUGGESTIONS stay inside card with scrolling ===== */
+.compare-suggestions {
+  flex-grow: 1; /* take available vertical space */
+  overflow-y: auto;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  margin-top: 6px;
+}
+
+/* Tighter suggestion look */
+.suggestion-item img {
+  width: 42px;
+  height: 50px;
+}
+
+.sugg-name {
+  font-size: 11px;
+  font-weight: 600;
+}
+.sugg-brand,
+.sugg-sub {
+  font-size: 10px;
+}
+
+/* ===== PRODUCT CARD inside slot ===== */
+.slot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.slot-thumb {
+  width: 150px;
+  height: 170px;
+  object-fit: contain;
+}
+
+/* Fix text spacing */
+.slot-name,
+.slot-brand,
+.slot-price {
+  margin: 4px 0;
+}
+
+/* Button locked at bottom */
+.slot-card .btn-add {
+  margin-top: auto !important;
+  width: 100%;
+}
+
+/* ===== BASE PRODUCT SAME BALANCED LOOK ===== */
+.comparison-card {
+  height: 430px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
+}
+
+.compare-image {
+  width: 180px;
+  height: 200px;
+  margin: 10px 0;
+}
+/* ===== FEATURE TABLE IMPROVED ===== */
+.compare-table-wrap {
+  margin-top: 16px; /* reduced top gap */
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 18px;
+  width: 100%;
+  margin-left: -100px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Table shrink + centered text */
+.compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px; /* row separation */
+}
+
+/* Header row */
+.compare-table thead th {
+  padding: 10px;
+  background: #fafafa;
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  border-bottom: 2px solid #eee;
+  text-align: center;
+}
+
+/* Feature Name Column */
+.feature-name {
+  background: #fdf3e7;
+  width: 18%;
+  font-weight: 600;
+  font-size: 12px;
+  color: #222;
+  text-align: left;
+  padding-left: 10px;
+  border-radius: 6px 0 0 6px;
+}
+
+/* Values Columns */
+.compare-table td {
+  background: #ffffff;
+  padding: 10px;
+  font-size: 12px;
+  color: #555;
+  text-align: center;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.compare-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Soft hover effect on row */
+.compare-table tbody tr:hover td {
+  background: #fafafa;
+}
+
+/* Column headers stick to edges beautifully */
+.compare-table th:first-child,
+.compare-table td:first-child {
+  text-align: left;
+}
+
+/* Rounded corners for rows */
+.compare-table tbody tr td:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.compare-table tbody tr td:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+/* Slight spacing from right */
+.compare-right-col {
+  padding-right: 12px;
+}

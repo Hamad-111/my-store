@@ -1,0 +1,214 @@
+/* =========================
+   SHARED PRODUCT CARD STYLES
+   ========================= */
+
+/* GRID (use in pages/sections) */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+@media (max-width: 520px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* CARD WRAPPER */
+.shared-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+
+  border: 1px solid #eee;
+  border-radius: 0px;
+  overflow: hidden;
+  background: #fff;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.shared-card:hover {
+  transform: translateY(-5px);
+}
+
+/* IMAGE BOX */
+.shared-card-image {
+  position: relative;
+  width: 100%;
+  height: 380px; /* same as NewArrivals */
+  overflow: hidden;
+  border-bottom: 1px solid #eee;
+}
+
+.shared-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* WISHLIST BUTTON (heart) */
+.shared-wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #0e0d0d;
+  transition: color 0.3s ease;
+  z-index: 5;
+}
+
+.shared-wishlist-btn:hover {
+  color: #ff4d4d;
+}
+
+/* BADGES */
+/* BADGES */
+
+/* (optional) if you won't use NEW anywhere, you can keep or delete */
+.new-badge {
+  display: none; /* ✅ safest: even if kisi jagah reh gaya, show nahi hoga */
+}
+
+/* ✅ SALE: very small + TOP-LEFT corner */
+.sale-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #d90429;
+  color: #fff;
+  font-size: 10px;
+  padding: 3px 6px;
+  font-weight: 700;
+  border-radius: 4px;
+  z-index: 6;
+  line-height: 1;
+}
+
+/* ✅ OUT OF STOCK: small + NOT full width */
+.oos-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+
+  display: inline-flex; /* ✅ prevents full width */
+  width: auto; /* ✅ important */
+  max-width: calc(100% - 20px);
+
+  background: rgba(17, 17, 17, 0.85);
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 8px;
+  font-weight: 600;
+  border-radius: 6px;
+  z-index: 6;
+
+  white-space: nowrap; /* ✅ keep it compact */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* CART ICON */
+.shared-cart-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 999px;
+  z-index: 5;
+}
+
+.shared-cart-btn img {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+/* INFO */
+.shared-card-info {
+  padding: 15px;
+  text-align: left;
+}
+
+.shared-tag {
+  color: #e63946;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.shared-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.shared-name {
+  color: #555;
+  font-size: 0.95rem;
+  margin: 6px 0 10px 0;
+}
+
+.shared-price {
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.shared-old-price {
+  margin-left: 8px;
+  text-decoration: line-through;
+  color: #999;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+/* ✅ OUT OF STOCK (FIXED) — small pill, not full width */
+.shared-card-image .oos-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content !important;
+  max-width: calc(100% - 20px);
+
+  padding: 5px 10px !important;
+  font-size: 11px !important;
+  font-weight: 700;
+
+  background: rgba(0, 0, 0, 0.82);
+  color: #fff;
+
+  border-radius: 999px; /* ✅ pill shape */
+  z-index: 10;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* ✅ prevents taking full image height/width by any inherited rule */
+  height: auto !important;
+}

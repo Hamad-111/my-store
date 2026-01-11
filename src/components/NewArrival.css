@@ -1,0 +1,167 @@
+.new-arrivals {
+  padding: 60px 80px;
+  text-align: center;
+  background-color: #ffffff;
+  margin-top: 25px;
+}
+
+.new-arrivals-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 40px;
+  letter-spacing: 1px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  border-radius: 0 !important;
+}
+
+.product-card {
+  border: 1px solid #eee;
+  border-radius: 0px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  background: #fff;
+  border-radius: 0 !important;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-image {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  /* fix height for all images */
+  overflow: hidden;
+  border-bottom: 1px solid #eee;
+  border-radius: 0 !important;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* crop perfectly without stretching */
+  display: block;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  /* remove white background */
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #0e0d0d;
+  /* white heart on image */
+  transition: color 0.3s ease;
+}
+
+.wishlist-btn:hover {
+  color: #ff4d4d;
+  /* heart turns red on hover */
+}
+
+.product-info {
+  padding: 15px;
+  text-align: left;
+}
+
+.tag {
+  color: #777;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.name {
+  color: #555;
+  font-size: 0.95rem;
+  margin: 4px 0 8px 0;
+}
+
+.price {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Remove underline and blue color from product links */
+.product-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.product-card:visited {
+  color: inherit;
+  /* Prevent purple color after clicking */
+}
+
+/* Responsive Grid */
+@media (max-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .new-arrivals {
+    padding: 30px 20px;
+  }
+
+  .new-arrivals-title {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .product-image {
+    height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    /* Keep 2 cols on mobile for 'app-like' feel */
+    gap: 10px;
+  }
+
+  .product-image {
+    height: 180px;
+  }
+
+  .wishlist-btn {
+    top: 5px;
+    right: 5px;
+    font-size: 18px;
+  }
+
+  .product-info {
+    padding: 10px;
+  }
+
+  .name {
+    font-size: 0.85rem;
+  }
+
+  .price {
+    font-size: 0.9rem;
+  }
+}

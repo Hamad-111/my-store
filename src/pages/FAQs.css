@@ -1,0 +1,92 @@
+.faq-page {
+  background: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  padding: 120px 60px 80px; /* gives side space */
+  padding-left: 150px;
+  margin-top: -80px;
+}
+
+/* Title centered and spaced from navbar */
+.faq-title {
+  text-align: center;
+  color: #2b653a;
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin-bottom: 60px;
+}
+
+/* Wrapper centered */
+.faq-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+/* Two columns centered */
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 500px));
+  gap: 30px 50px;
+  justify-content: center;
+  max-width: 1100px;
+  width: 100%;
+}
+
+/* Each question box */
+.faq-item {
+  background: #f5f5f5;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 16px 20px;
+  font-size: 1rem;
+  color: #222;
+}
+
+.faq-icon {
+  color: #2b653a;
+  background: #fff;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(43, 101, 58, 0.2);
+}
+
+/* Answer container */
+.faq-answer-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+/* Only the active one expands */
+.faq-answer-wrapper.open {
+  max-height: 400px;
+}
+
+/* Answer text */
+.faq-answer {
+  background: #ffffff;
+  padding: 15px 20px;
+  font-size: 0.93rem;
+  color: #555;
+  line-height: 1.5;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .faq-grid {
+    grid-template-columns: 1fr;
+    padding: 0 15px;
+  }
+}

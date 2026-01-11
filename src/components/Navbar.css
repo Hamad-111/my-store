@@ -1,0 +1,711 @@
+/* ===== GLOBAL ===== */
+/* ===== GLOBAL ===== */
+/* ===== SEARCH SUGGESTIONS ===== */
+.search-suggestions {
+  position: absolute;
+  top: 45px;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1500;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f9f9f9;
+}
+
+.suggestion-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.suggestion-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.suggestion-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.suggestion-price {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #2b653a;
+  font-weight: 600;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Push page down (70px top bar + ~40px secondary) */
+.page-content {
+  padding-top: 120px;
+}
+
+/* ===== TOP FIXED NAVBAR (your old one, same style) ===== */
+.nav-wrapper {
+  background-color: #f6f7f5;
+  padding: 0.4rem 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-center {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+  justify-content: center;
+}
+
+/* SEARCH BAR */
+.search-bar {
+  position: relative;
+  width: 400px;
+  margin-right: 40px;
+  height: 40px;
+  z-index: 2000;
+}
+
+.search-bar input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 35px 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  outline: none;
+  height: 40px;
+  font-size: 0.95rem;
+  background-color: #efeded;
+}
+
+.search-bar input:focus {
+  border-color: #2b653a;
+  box-shadow: 0 0 6px rgba(43, 101, 58, 0.3);
+}
+
+.search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #555;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.search-icon:hover {
+  background-color: #e6e6e6;
+  color: #2b653a;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* RIGHT ICONS */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand {
+  text-decoration: none;
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: rgb(43, 101, 58);
+  text-decoration: none;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: black;
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 6px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+/* BADGES */
+.cart-wrapper {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  background: red;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.wishlist-wrapper {
+  position: relative;
+}
+
+.wishlist-badge {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  background: red;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== LOCATION BOX ===== */
+.nav-location-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  height: 45px;
+  min-width: 130px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-radius: 0 !important;
+}
+
+.nav-location-box:hover {
+  box-shadow: 0 3px 8px rgba(43, 101, 58, 0.15);
+  transform: translateY(-1px);
+}
+
+.nav-location-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.nav-location-text small {
+  font-size: 0.65rem;
+  color: #666;
+}
+
+.nav-location-text strong {
+  font-size: 0.85rem;
+  color: #2b653a;
+  font-weight: 600;
+}
+
+.nav-location-arrow {
+  color: #2b653a;
+  flex-shrink: 0;
+}
+
+/* ===== SECONDARY NAVBAR (MEN / WOMEN etc.) ===== */
+.secondary-nav {
+  position: fixed;
+  top: 100px;
+  /* پہلے 70 تھا، 72–80 تک رکھ سکتی ہو */
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  z-index: 1200;
+  /* اوپر نظر آئے، کہیں hide نہ ہو */
+}
+
+.main-menu-wrapper {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ADD THIS PART: */
+.main-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* ⬅️ this centers all items */
+  gap: 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0.55rem 0;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  position: relative;
+  width: 100%;
+  /* ⬅️ helps centering nicely */
+}
+
+.main-menu li {
+  position: relative;
+}
+
+.main-menu-link {
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #555555;
+  /* was #111 – now grey */
+  font-weight: 600;
+  /* bold */
+  text-decoration: none;
+}
+
+.main-menu-link:hover {
+  color: #2b653a;
+}
+
+/* ===== MEGA MENU ===== */
+.has-mega .main-menu-link {
+  position: relative;
+}
+
+.mega-menu {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  margin-top: 0;
+  width: 1440px;
+  background: #eeebeb;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+  padding: 30px 30px 32px;
+}
+
+.mega-inner {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.mega-columns {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  flex: 2;
+  justify-content: center;
+  /* 🔥 center all category columns */
+}
+
+.mega-col {
+  min-width: 120px;
+}
+
+.mega-heading {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+}
+
+.mega-link {
+  display: block;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  margin: 0;
+  width: 100%;
+  text-align: left;
+  font-size: 0.86rem;
+  color: #787777;
+  cursor: pointer;
+  text-transform: none;
+}
+
+.mega-link:hover {
+  color: #2b653a;
+}
+
+/* right side image */
+.mega-image {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  align-items: flex-start;
+  /* image starts higher, feels lighter */
+  justify-content: center;
+}
+
+.mega-image img {
+  width: 100%;
+  max-width: 300px;
+  /* smaller than 320 */
+  max-height: 350px;
+  /* limit height too */
+  height: auto;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* ===== SMALLER SCREENS ===== */
+@media (max-width: 900px) {
+  .search-bar input {
+    width: 260px;
+  }
+
+  .main-menu {
+    gap: 16px;
+    font-size: 0.8rem;
+  }
+
+  .mega-menu {
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .mega-columns {
+    gap: 24px;
+  }
+
+  .mega-image {
+    display: none;
+    /* you can keep or remove image on mobile */
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-container {
+    padding: 0 6px;
+  }
+
+  .search-bar {
+    display: none;
+    /* optional: hide search on very small screens */
+  }
+
+  .main-menu-wrapper {
+    padding: 0 0.6rem;
+  }
+
+  .main-menu {
+    gap: 10px;
+    font-size: 0.7rem;
+  }
+}
+
+.mega-heading-btn {
+  background: none;
+  border: none;
+  padding: 0 0 6px;
+  margin: 0 0 10px;
+  width: 100%;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.mega-heading-btn:hover {
+  color: #2b653a;
+}
+
+/* IMPORTANT: allow dropdown to float above everything */
+.nav-wrapper,
+.nav-container,
+.nav-center,
+.search-bar {
+  overflow: visible !important;
+}
+
+/* Put dropdown above secondary nav + mega menus */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  z-index: 99999;
+  /* ✅ biggest */
+}
+
+/* make search-bar a positioning parent */
+.search-bar {
+  position: relative;
+  z-index: 99999;
+  /* ✅ above secondary nav */
+}
+
+/* secondary nav should be lower than suggestions */
+.secondary-nav {
+  position: relative;
+  z-index: 10;
+}
+
+/* suggestion item layout */
+.suggestion-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  align-items: center;
+}
+
+.suggestion-item:hover {
+  background: #f6f6f6;
+}
+
+.suggestion-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.suggestion-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.suggestion-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.suggestion-price {
+  font-size: 12px;
+  color: #666;
+  margin: 2px 0 0;
+}
+
+.brand-logo {
+  height: 70px !important;
+  max-height: none !important;
+  width: auto;
+  object-fit: contain;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.brand-logo:hover {
+  transform: scale(1.08);
+}
+
+.brand-logo {
+  height: 45px;
+}
+}
+
+/* ✅ MOBILE NAV DRAWER */
+.mobile-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #111;
+  padding: 5px;
+  margin-right: 10px;
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.mobile-menu-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  /* Width of the drawer */
+  height: 100%;
+  background: #fff;
+  z-index: 2100;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-drawer.open {
+  transform: translateX(0);
+}
+
+.mobile-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  background: #f9f9f9;
+}
+
+.mobile-nav-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #2b653a;
+}
+
+.mobile-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  color: #555;
+}
+
+.mobile-nav-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.mobile-nav-item {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.mobile-nav-link:hover {
+  background: #f5f5f5;
+  color: #2b653a;
+}
+
+/* MEDIA QUERY UPDATES */
+@media (max-width: 900px) {
+  .mobile-hamburger {
+    display: block;
+  }
+
+  /* Hide standard secondary nav on mobile */
+  .secondary-nav {
+    display: none;
+  }
+
+  /* Adjust nav layout */
+  .nav-left {
+    flex: 1;
+    /* allow logo to center or move */
+  }
+
+  .nav-center {
+    justify-content: flex-end;
+    /* search icon moves right */
+  }
+
+  .nav-location-box {
+    display: none;
+    /* Hide location dropdown on mobile to save space */
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

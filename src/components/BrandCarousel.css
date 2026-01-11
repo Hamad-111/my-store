@@ -1,0 +1,64 @@
+/* src/components/BrandCarousel.css */
+
+.brand-carousel-section {
+  width: 100%;
+  background-color: #fff;
+  padding: 40px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.brand-carousel-wrapper {
+  width: 90%;
+  max-width: 1200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.brand-carousel {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  animation: scroll 25s linear infinite;
+  will-change: transform;
+}
+
+.brand-item {
+  flex: 0 0 auto;
+  width: 120px;
+}
+
+.brand-item img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.brand-item img:hover {
+  transform: scale(1.1);
+}
+
+/* Auto scrolling keyframes */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .brand-item {
+    width: 90px;
+  }
+
+  .brand-carousel {
+    gap: 2rem;
+    animation-duration: 20s;
+  }
+}

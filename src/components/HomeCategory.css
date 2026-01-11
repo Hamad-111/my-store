@@ -1,0 +1,51 @@
+.rtw-section {
+  width: 100%;
+  margin: 30px 30px; /* LEFT + RIGHT MARGIN ADDED */
+  background-color: rgb(255, 255, 255);
+  margin-left: 0px;
+}
+
+.rtw-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+.rtw-card {
+  text-align: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.rtw-grid {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px; /* slightly reduced gap for smaller circles */
+  overflow-x: auto;
+  padding-bottom: 15px;
+}
+
+.rtw-card {
+  text-align: center;
+}
+
+.rtw-img-wrapper {
+  width: 120px; /* smaller circle */
+  height: 120px; /* smaller circle */
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.rtw-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.rtw-name {
+  margin-top: 10px; /* slightly tighter spacing */
+  font-size: 14px; /* balanced with smaller circle */
+  font-weight: 600;
+}

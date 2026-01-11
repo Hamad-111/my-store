@@ -1,0 +1,128 @@
+/* SECTION BACKGROUND */
+.mp-container {
+  width: 100%;
+  margin-top: 25px;
+  background: #f0eded;
+  /* light gray background */
+  padding: 50px 40px;
+  border-radius: 0px;
+}
+
+/* HEADING */
+.mp-title {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+/* GRID — 4 COLUMNS */
+.mp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+
+/* CARD */
+.mp-card {
+  background: #fff;
+  /* white cards */
+  border-radius: 14px;
+  padding-bottom: 15px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  border-radius: 0 !important;
+}
+
+/* Hover animation */
+.mp-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* IMAGE WRAPPER */
+.mp-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  /* reduced height */
+  overflow: hidden;
+  border-radius: 14px;
+  border-radius: 0 !important;
+}
+
+.mp-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: 0.35s ease;
+  object-position: top;
+}
+
+/* Image zoom on hover */
+.mp-card:hover .mp-img {
+  transform: scale(1.06);
+}
+
+/* DISCOUNT BADGE */
+.mp-discount {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: #ffe5e5;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d00000;
+}
+
+/* TEXT */
+.mp-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 12px;
+  padding-left: 8px;
+}
+
+.mp-items {
+  font-size: 15px;
+  color: #555;
+  padding-left: 8px;
+}
+
+/* RESPONSIVE — TABLETS (3 per row) */
+@media (max-width: 992px) {
+  .mp-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* RESPONSIVE — MOBILE (2 per row) */
+@media (max-width: 600px) {
+  .mp-container {
+    padding: 30px 20px;
+  }
+
+  .mp-title {
+    font-size: 24px;
+  }
+
+  .mp-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .mp-img-wrapper {
+    height: 180px;
+  }
+
+  .mp-name {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .mp-grid {
+    grid-template-columns: 1fr;
+  }
+}

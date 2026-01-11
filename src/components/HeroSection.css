@@ -1,0 +1,103 @@
+.hero-wrapper {
+  width: 100%;
+  height: 450px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 145px;
+}
+
+/* Slider layout */
+.hero-slider {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Each Slide */
+.hero-slide {
+  flex: 0 0 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Banner Images */
+.hero-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* ensures equal height */
+  border-radius: 0;
+  object-position: top;
+}
+
+/* Overlay Text */
+.overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  transform: translateY(-50%);
+  color: white;
+}
+
+.overlay-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.overlay-content p {
+  font-size: 1.2rem;
+  margin-top: 8px;
+  text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.3);
+}
+
+.banner-btn {
+  display: inline-block;
+  margin-top: 18px;
+  background: white;
+  color: black;
+  padding: 12px 28px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.banner-btn:hover {
+  background: black;
+  color: white;
+}
+
+/* Arrows */
+.hero-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.hero-arrow.left {
+  left: 20px;
+}
+
+.hero-arrow.right {
+  right: 20px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .overlay-content h1 {
+    font-size: 2rem;
+  }
+  .overlay-content p {
+    font-size: 1rem;
+  }
+  .banner-btn {
+    padding: 10px 20px;
+  }
+}

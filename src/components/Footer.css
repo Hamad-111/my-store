@@ -1,0 +1,90 @@
+/* General Footer Styling */
+.footer {
+  background-color: #efeeee;
+  color: #2e3d25;
+  padding: 40px 25px;
+  /* ✅ Reduced padding (height fix) */
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Grid Layout */
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+  /* ✅ Smaller gap for compact height */
+  margin-bottom: 25px;
+  /* ✅ Reduced margin */
+}
+
+/* Logo */
+.footer-logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+/* Text & links */
+.footer-section p,
+.footer-section a {
+  color: #2e3d25;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.footer-section h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section li a {
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-section li a:hover {
+  color: #328b45;
+}
+
+/* Social icons */
+.social-icons {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.social-icons a {
+  font-size: 20px;
+  color: #2e3d25;
+}
+
+.social-icons a:hover {
+  color: #349561;
+}
+
+/* Bottom text */
+.footer-bottom {
+  text-align: center;
+  font-size: 13px;
+  color: #7c8b66;
+  margin-top: 10px;
+}
+
+/* Mobile Tuning */
+@media (max-width: 768px) {
+  .footer {
+    padding: 30px 15px;
+  }
+
+  .footer-container {
+    gap: 20px;
+    grid-template-columns: 1fr;
+    /* Stack vertically on small screens */
+  }
+}

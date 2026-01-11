@@ -1,0 +1,84 @@
+/* ✅ Promo Banner Section */
+.promo-banner {
+  width: 100%;
+  height: 190px;
+  background: #f4e9e4;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin-top: 25px;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1300px;
+}
+
+.banner-left {
+  flex: 2;
+}
+
+.banner-image {
+  width: 550px;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.banner-right {
+  flex: 1;
+  text-align: center;
+  padding: 40px;
+  background: linear-gradient(to right, #e9d5cb, #f8f3ef);
+}
+
+.banner-right h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #6b0000;
+  margin-bottom: 10px;
+}
+
+.banner-right .highlight {
+  background: #5b0d0d;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+.banner-right h1 {
+  font-size: 40px;
+  font-weight: 800;
+  color: #222;
+  margin: 0;
+}
+
+.bold-7k {
+  color: #b70000;
+  font-size: 48px;
+}
+
+/* ✅ Responsive for Mobile */
+@media (max-width: 768px) {
+  .banner-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .banner-right {
+    padding: 20px;
+  }
+
+  .banner-right h1 {
+    font-size: 30px;
+  }
+
+  .bold-7k {
+    font-size: 36px;
+  }
+}

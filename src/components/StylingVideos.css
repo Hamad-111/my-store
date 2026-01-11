@@ -1,0 +1,228 @@
+/* GLOBAL RESET FOR THIS COMPONENT ONLY */
+.svx-container * {
+  box-sizing: border-box;
+}
+
+/* MAIN SECTION */
+.svx-container {
+  width: 100%;
+  padding: 28px 34px;
+  background: #fff;
+}
+
+.svx-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.svx-title {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.svx-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* VIEW ALL */
+.svx-view-all {
+  color: #000;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+/* ARROWS */
+.svx-head-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.svx-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* GRID */
+.svx-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 26px;
+}
+
+.svx-card {
+  cursor: pointer;
+}
+
+.svx-thumb-wrap {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: #eee;
+  overflow: hidden;
+}
+
+.svx-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.svx-play {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* CARD TEXT */
+.svx-name {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.svx-price {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* MODAL BACKDROP */
+.svx-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  padding: 20px;
+}
+
+/* MODAL CONTENT */
+.svx-modal-content {
+  width: 420px;
+  max-width: 92%;
+  position: relative;
+}
+
+/* CLOSE BUTTON */
+.svx-close {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 40px;
+  height: 40px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  z-index: 9999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* VIDEO */
+.svx-video-wrap {
+  position: relative;
+  width: 100%;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.svx-video {
+  width: 100%;
+  height: auto;
+}
+
+/* SOUND BUTTON */
+.svx-sound {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  z-index: 9999999;
+}
+
+/* PRODUCT CARD UNDER VIDEO */
+.svx-product-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #ddd;
+  position: relative;
+  z-index: 9999999;
+}
+
+.svx-product-img {
+  width: 70px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.svx-product-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.svx-price-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.svx-current {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.svx-old {
+  text-decoration: line-through;
+  font-size: 13px;
+  color: #777;
+}
+
+.svx-discount {
+  background: #ffdada;
+  color: #c00;
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.svx-cta {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+}
+/* FORCE MODAL ABOVE EVERYTHING */

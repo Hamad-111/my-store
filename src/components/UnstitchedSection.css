@@ -1,0 +1,79 @@
+.unstitched-section {
+  width: 100%;
+  padding: 40px 0;
+  text-align: center;
+  background-color: rgb(255, 255, 255);
+  margin-top: 25px;
+}
+
+.unstitched-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  letter-spacing: 1px;
+}
+
+/* 4 Columns Grid */
+.unstitched-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  width: 90%;
+  margin: 0 auto;
+  border-radius: 0 !important;
+}
+
+/* Each Card */
+.unstitched-card {
+  text-align: center;
+  cursor: pointer;
+  border-radius: 0 !important;
+}
+
+/* Image Styling */
+.unstitched-img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 12px;
+  object-position: top;
+  border-radius: 0 !important;
+}
+
+/* Category Label */
+.unstitched-label {
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .unstitched-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .unstitched-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .unstitched-img {
+    height: 220px;
+  }
+}
+.unstitched-card {
+  outline: none;
+  border: none;
+}
+
+.unstitched-card:focus,
+.unstitched-card:hover,
+.unstitched-card:active {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}

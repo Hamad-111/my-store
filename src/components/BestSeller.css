@@ -1,0 +1,177 @@
+/* src/components/BestSeller.css */
+
+.bs-section {
+  padding: 40px 100px;
+  background: #ffffff;
+  margin-top: 25px;
+}
+
+.bs-wrapper {
+  display: flex;
+  gap: 50px;
+}
+
+/* LEFT BANNER */
+.bs-banner {
+  width: 270px;
+  height: 500px;
+
+  background-image: url('/images/side.jfif');
+  background-repeat: no-repeat;
+
+  /* 🔥 IMPORTANT PART */
+  background-size: auto 100%;
+  /* height full, width auto */
+  background-position: center;
+  /* image center rahe */
+
+  border-radius: 0;
+  position: relative;
+}
+
+.bs-banner-text {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(180deg);
+  writing-mode: vertical-rl;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* RIGHT CONTENT */
+.bs-content {
+  flex: 1;
+}
+
+.bs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bs-title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/* VIEW ALL BUTTON */
+.bs-small-btn {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+  color: #333;
+  cursor: pointer;
+}
+
+.bs-small-btn:hover {
+  background: #f5f5f5;
+}
+
+.bs-desc {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* SLIDER */
+.bs-slider {
+  position: relative;
+  overflow: visible;
+}
+
+.bordered-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: #fcfcfc;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+}
+
+/* visible area = 3 cards at a time (adjust if your card width changes) */
+.bs-visible-area {
+  width: calc(220px * 3 + 20px * 2);
+  overflow: hidden;
+}
+
+/* Horizontal Scroll */
+.bs-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+
+.bs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ARROWS */
+
+/* Responsive tweak */
+@media (max-width: 900px) {
+  .bs-section {
+    padding: 30px 20px;
+  }
+
+  .bs-wrapper {
+    flex-direction: column;
+  }
+
+  .bs-banner {
+    width: 100%;
+  }
+
+  .bs-visible-area {
+    width: 100%;
+  }
+
+  .bs-arrow-left {
+    left: 0;
+  }
+
+  .bs-arrow-right {
+    right: 0;
+  }
+}
+
+.bs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .bs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .bs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .bs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .bs-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .bs-section {
+    padding: 30px 20px;
+  }
+}

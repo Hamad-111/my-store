@@ -1,0 +1,1062 @@
+/* ================================
+   WOMEN PAGE – FULL CSS
+   ================================ */
+
+/* PAGE BASE */
+.women-page {
+  padding-top: 20px;
+  background: #fafafa;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  margin-top: 0px;
+}
+
+/* ================================
+   BANNER SECTION
+   ================================ */
+.women-banner {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+}
+
+.women-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.85);
+  object-position: top;
+}
+
+/* ================================
+   CATEGORY CIRCLES (optional)
+   ================================ */
+.wcircle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  margin-top: 40px;
+  margin-bottom: 60px;
+  flex-wrap: wrap;
+}
+
+.wcircle-item {
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.wcircle-item:hover {
+  transform: translateY(-6px);
+}
+
+.wcircle-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  object-position: top;
+}
+
+.wcircle-label {
+  margin-top: 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* ================================
+   MAIN LAYOUT
+   ================================ */
+.women-main {
+  display: flex;
+  gap: 24px;
+  padding: 22px 40px;
+  align-items: flex-start;
+}
+
+/* ================================
+   FILTER SIDEBAR
+   ================================ */
+.filters-sidebar {
+  background: #fff;
+  padding: 20px;
+  width: 270px;
+  border-radius: 14px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* FILTER BOX */
+.filter-box {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  border: 1px solid #e7e7e7;
+}
+
+/* HEADINGS */
+.filter-box h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ICON COLORS */
+.icon.sort {
+  color: #ff9800;
+}
+
+.icon.truck {
+  color: #3f51b5;
+}
+
+.icon.check {
+  color: #009688;
+}
+
+.icon.rupee {
+  color: #4caf50;
+}
+
+.icon.fabric {
+  color: #9c27b0;
+}
+
+.icon.size {
+  color: #795548;
+}
+
+.icon.palette {
+  color: #e91e63;
+}
+
+.icon.brand {
+  color: #607d8b;
+}
+
+/* FILTER ITEMS */
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* COLORS */
+.color-box-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.color-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #ddd;
+  transition: transform 0.2s ease;
+}
+
+.color-circle:hover {
+  transform: scale(1.1);
+}
+
+/* BRAND FILTER LIST */
+.brand-list-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.brand-item-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  background: transparent;
+  border-radius: 0;
+  transition: none;
+}
+
+.brand-item-filter:hover {
+  background: transparent;
+}
+
+.brand-logo-filter {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: white;
+  padding: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* ================================
+   PRODUCT GRID
+   ================================ */
+.women-products {
+  flex: 1;
+  min-height: 400px;
+}
+
+.products-count {
+  margin-bottom: 6px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.products-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.no-results {
+  padding: 40px;
+  background: white;
+  border-radius: 10px;
+  text-align: center;
+  color: #666;
+  margin-top: 10px;
+}
+
+/* ================================
+   PRODUCT CARD
+   ================================ */
+.product-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+/* legacy class if you use product-media */
+.product-media {
+  position: relative;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* main image wrapper used in ProductCard */
+.product-image {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  overflow: hidden;
+  border-bottom: 1px solid #eee;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* SALE badge */
+.product-sale-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #e53935;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* OUT OF STOCK badge */
+.women-oos-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+/* SMALL CART ICON IN BOTTOM RIGHT CORNER */
+.product-cart-icon {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 35px;
+  height: 35px;
+  background: #ffffff;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: transform 0.15s ease;
+}
+
+.product-cart-icon:hover {
+  transform: scale(1.07);
+}
+
+.product-cart-icon-img {
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+  display: block;
+}
+
+/* body text */
+.product-body,
+.product-info {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-title {
+  font-size: 0.95rem;
+  margin: 0;
+  color: #222;
+}
+
+.product-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: #555;
+}
+
+/* ================================
+   BRAND PAGE HEADER INSIDE WOMEN PAGE
+   ================================ */
+.brand-page-header {
+  margin-bottom: 12px;
+}
+
+.brand-page-title {
+  font-size: 24px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.brand-page-subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.brand-count-banner {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #f4f4f4;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* BRAND TYPE HEADER (All / Unstitched / Ready / Accessories) */
+.brand-type-header {
+  display: inline-flex;
+  gap: 14px;
+  margin-top: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ececec;
+}
+
+.brand-type-pill {
+  border: none;
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #777;
+  border-bottom: 2px solid transparent;
+}
+
+.brand-type-pill:hover {
+  color: #1f4632;
+}
+
+.brand-type-pill.active {
+  color: #1f4632;
+  border-bottom-color: #1f4632;
+}
+
+/* ================================
+   WOMEN TOP TYPE HEADER – CIRCLE STYLE
+   ================================ */
+.women-type-header-circles {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 24px 40px 18px;
+  background: #fafafa;
+}
+
+.w-type-circle {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: center;
+}
+
+.w-type-img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.w-type-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.w-type-label {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.w-type-circle:hover .w-type-img {
+  outline: 2px solid #000;
+}
+
+/* Responsive for top circles */
+@media (max-width: 768px) {
+  .women-type-header-circles {
+    gap: 18px;
+    padding: 16px 16px 12px;
+  }
+
+  .w-type-img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .w-type-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* ================================
+   UNSTITCHED TYPE HEADER (BIG)
+   ================================ */
+.u-type-wrapper {
+  width: 100%;
+  text-align: center;
+  padding: 40px 0 30px;
+}
+
+.u-type-title {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 40px;
+}
+
+/* round images row */
+.u-type-circles-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 80px;
+  margin-bottom: 32px;
+}
+
+.u-type-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.u-type-img-circle {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.u-type-img-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.u-type-label {
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* pills row */
+.u-type-pills-row {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.u-type-pill {
+  border-radius: 999px;
+  border: 1.5px solid #000;
+  padding: 12px 32px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* responsive */
+@media (max-width: 768px) {
+  .u-type-circles-row {
+    gap: 40px;
+  }
+
+  .u-type-img-circle {
+    width: 150px;
+    height: 150px;
+  }
+
+  .u-type-title {
+    font-size: 28px;
+  }
+}
+
+/* SMALLER UNSTITCHED HEADER (on /unstitched) */
+.u-type-wrapper-small {
+  padding: 20px 0 10px;
+}
+
+.u-type-title-small {
+  font-size: 24px;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.u-type-circles-row-small {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.u-type-style-circle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.u-type-style-circle.active .u-type-img-circle-small {
+  outline: 2px solid #000;
+}
+
+.u-type-img-circle-small {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.u-type-img-circle-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.u-type-label-small {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ✅ Shared subcategory pills for Unstitched + Men */
+
+.u-type-pills-row-small {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+/* Base styling (small version of big pills) */
+.u-type-pill-small {
+  border-radius: 999px;
+  border: 1.5px solid #000;
+  background: #fff;
+  padding: 8px 22px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Hover effect – same feel as Unstitched pills */
+.u-type-pill-small:hover {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* Active state – used in both Women + Men */
+.u-type-pill.active,
+.u-type-pill-small.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.u-type-pills-row-secondary {
+  margin-top: 6px;
+}
+
+@media (max-width: 768px) {
+  .u-type-title-small {
+    font-size: 20px;
+  }
+
+  .u-type-img-circle-small {
+    width: 70px;
+    height: 70px;
+  }
+
+  .u-type-pill-small {
+    padding: 4px 12px;
+    font-size: 11px;
+  }
+}
+
+/* DISABLED FILTER OPTION */
+.filter-disabled-option {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.filter-disabled-option input {
+  cursor: not-allowed;
+}
+
+/* ================================
+   GRID LAYOUTS (2 / 4 / 6)
+   ================================ */
+
+.products-grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 35px;
+}
+
+.products-grid-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 30px;
+}
+
+.products-grid-six {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 20px;
+}
+
+/* ✅ 2-COLUMN VIEW – proper horizontal 2 cards */
+.products-grid-two .product-card {
+  height: auto;
+  /* card content ke hisaab se */
+}
+
+/* sab images same height + full, top se crop */
+.products-grid-two .product-image {
+  height: 520px;
+  /* agar zyada/little chahiye ho to yahan adjust kar lena */
+}
+
+.products-grid-two .product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  /* image top se dikhے */
+}
+
+/* 4-column: normal height */
+.products-grid-four .product-image {
+  height: 380px;
+  width: 200px;
+}
+
+/* 6-grid: images only, no text */
+.products-grid-six .product-image {
+  height: 260px;
+}
+
+/* six-grid me cart icon hide */
+.products-grid-six .product-cart-icon {
+  display: none;
+}
+
+/* six-grid me text hide for clean look */
+.products-grid-six .product-body,
+.products-grid-six .product-meta,
+.products-grid-six .product-title,
+.products-grid-six .product-info {
+  display: none;
+}
+
+.products-grid-six .product-image {
+  height: 260px;
+  border-radius: 0;
+  border: none;
+}
+
+/* hide badges and cart in 6-grid for clean look */
+.products-grid-six .product-sale-badge,
+.products-grid-six .oos-badge,
+.products-grid-six .product-cart-icon {
+  display: none;
+}
+
+/* ================================
+   TOP ROW WITH GRID ICONS
+   ================================ */
+.products-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+/* grid icons like ColorPage */
+.grid-icons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.grid-icons span {
+  font-size: 26px;
+  width: 28px;
+  display: inline-flex;
+  justify-content: center;
+  cursor: pointer;
+  color: #888;
+  transition: 0.2s ease;
+}
+
+.grid-icons span.active,
+.grid-icons span:hover {
+  color: #000;
+  transform: scale(1.1);
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+
+/* Tablet: 4 / 6 grid thoda compress ho jaye,
+   2-grid phir bhi 2 hi columns rahe */
+@media (max-width: 1100px) {
+  .products-grid-four {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .products-grid-six {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Small screens: sab 2 columns ho jaye */
+@media (max-width: 800px) {
+  .women-main {
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .filters-sidebar {
+    width: 100%;
+    order: 2;
+  }
+
+  .women-products {
+    order: 1;
+  }
+
+  .products-grid-two,
+  .products-grid-four,
+  .products-grid-six {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Very small screens: 1 column */
+@media (max-width: 480px) {
+  .products-grid-two,
+  .products-grid-four,
+  .products-grid-six {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ✅ ACTIVE (selected) color highlight – no layout change, just border + glow */
+.color-circle.active {
+  border-color: #000;
+  /* selected outline */
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.18);
+}
+
+/* ✅ OPTIONAL: hover on active (slightly stronger) */
+.color-circle.active:hover {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.22);
+}
+
+.color-circle {
+  width: 20px;
+  /* ✅ chota size */
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #ddd;
+  transition: transform 0.2s ease;
+
+  /* ✅ button reset (yehi main fix hai) */
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  /* bg color inline style se aa raha hai */
+  outline: none;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 2px solid #ddd;
+  display: inline-block;
+}
+
+/* Price input row */
+.price-range-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.price-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+}
+
+.price-dash {
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+.price-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+/* Scrollable filter list (Materials etc.) */
+.scroll-filter-list {
+  max-height: 170px;
+  /* adjust if you want */
+  overflow-y: auto;
+  padding-right: 6px;
+  /* so scrollbar doesn't overlap */
+}
+
+/* Optional: nicer scrollbar */
+.scroll-filter-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-filter-list::-webkit-scrollbar-thumb {
+  background: #cfcfcf;
+  border-radius: 10px;
+}
+
+/* ================================
+   WOMEN ROOT TYPE HEADER (under banner)
+   Unstitched / Ready to Wear / Accessories
+   ================================ */
+
+.women-root-type-header {
+  width: 100%;
+  background: #fafafa;
+  padding: 18px 0 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.women-root-circles {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  flex-wrap: wrap;
+  padding: 0 18px;
+}
+
+.women-root-circle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  padding: 0;
+}
+
+.women-root-img {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto;
+  outline: 2px solid transparent;
+  transition: 0.2s;
+  background: #f5f5f5;
+}
+
+.women-root-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+.women-root-label {
+  margin-top: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #222;
+  opacity: 0.9;
+}
+
+.women-root-circle:hover .women-root-img {
+  outline-color: rgba(0, 0, 0, 0.35);
+}
+
+.women-root-circle.active .women-root-img {
+  outline-color: #000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+/* responsive */
+@media (max-width: 560px) {
+  .women-root-img {
+    width: 76px;
+    height: 76px;
+  }
+
+  .women-root-label {
+    font-size: 11px;
+  }
+}
+/* ✅ GRID 6: ONLY IMAGE (hide ALL text blocks) */
+.products-grid-six .product-body,
+.products-grid-six .product-info,
+.products-grid-six .shared-card-info {
+  display: none !important;
+}
+
+/* ✅ GRID 6: clean card look */
+.products-grid-six .product-card,
+.products-grid-six .shared-card {
+  box-shadow: none;
+  border: none;
+}
+
+/* ✅ GRID 6: image full area */
+.products-grid-six .product-image,
+.products-grid-six .shared-card-image {
+  height: 260px;
+  width: 100%;
+  border: none;
+}
+/* ✅ FIX: NEVER force image wrapper width */
+.products-grid-four .product-image {
+  width: 100% !important; /* ✅ remove 200px problem */
+}
+/* =========================================
+   ✅ GRID 2 (FINAL): SAME HEIGHT + TOP FOCUS
+   ========================================= */
+
+/* ✅ All cards equal */
+.products-grid-two .shared-card-image,
+.products-grid-two .product-image {
+  height: 520px !important; /* ✅ same height */
+  overflow: hidden !important; /* ✅ crop properly */
+  background: #fff;
+}
+
+/* ✅ image shows TOP part, looks professional */
+.products-grid-two .shared-card-image img,
+.products-grid-two .product-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important; /* ✅ fills nicely */
+  object-position: top !important; /* ✅ top area visible */
+  display: block;
+}
+
+/* ✅ cart icon normal size (not huge) */
+.products-grid-two .shared-cart-btn,
+.products-grid-two .product-cart-icon {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 7px !important;
+}
+
+/* ✅ cart icon image size */
+.products-grid-two .shared-cart-btn img,
+.products-grid-two .product-cart-icon-img {
+  width: 18px !important;
+  height: 18px !important;
+}

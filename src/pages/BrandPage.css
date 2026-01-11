@@ -1,0 +1,133 @@
+/* src/pages/BrandPage.css */
+
+.brand-page {
+  padding: 30px 6% 60px;
+  font-family: Arial, sans-serif;
+  margin-top: 30px;
+  min-height: calc(100vh - 130px);
+  box-sizing: border-box;
+}
+
+/* MAIN TITLE */
+.brand-main-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+/* SEARCH BAR */
+.brand-search-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.brand-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #999;
+}
+
+.brand-search {
+  width: 100%;
+  padding: 10px 14px 10px 38px; /* space for icon */
+  border: 1px solid #ccc;
+  border-radius: 6px; /* sharper */
+  font-size: 15px;
+  background: #fafafa;
+}
+
+/* CATEGORY TABS */
+.brand-categories {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.brand-categories button {
+  padding: 10px 18px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.brand-categories .active {
+  background: #1f4632;
+  color: #fff;
+  border-color: #1f4632;
+}
+
+/* A–Z LETTERS */
+.brand-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 25px;
+}
+
+.brand-letters button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.brand-letters button.active {
+  background: #1cbf6b;
+  color: white;
+  border-color: #1cbf6b;
+}
+
+/* BRAND LIST – VERTICAL LEFT */
+.brand-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 20px;
+  max-width: 280px;
+}
+
+/* brand cards */
+.brand-box {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e3e3e3;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 6px; /* sharper edges */
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: left;
+}
+
+.brand-box:hover {
+  background: #1f4632;
+  color: #fff;
+  border-color: #1f4632;
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+/* No result text */
+.no-result {
+  color: gray;
+  font-size: 16px;
+}
