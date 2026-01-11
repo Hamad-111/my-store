@@ -13,7 +13,7 @@ import {
   Plus,
   Trash2,
   Edit2,
-  Edit2,
+
   Database,
   Menu,
   X,
