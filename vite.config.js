@@ -5,7 +5,19 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3017, // Change this to your desired port
-    host: true, // Set to true to expose to the network (e.g., for testing on mobile)
+    port: 3017,
+    host: true,
+  },
+  build: {
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
   },
 });
