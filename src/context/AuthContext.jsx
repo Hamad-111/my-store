@@ -124,6 +124,23 @@ export const AuthProvider = ({ children }) => {
     return { success: true };
   };
 
+  const loginWithGoogle = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin, // Redirects back to the app
+      },
+    });
+
+    if (error) {
+      setLoading(false);
+      return { success: false, message: error.message };
+    }
+
+    return { success: true, data };
+  };
+
   const logout = async () => {
     // setLoading(true); // ❌ Don't block UI on logout (prevents unmount issues)
     await supabase.auth.signOut();
@@ -149,7 +166,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, signup, loginWithGoogle, loading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,7 +1,8 @@
 body {
   background-color: #f4f5f7;
   margin: 0;
-  font-family: 'Poppins', sans-serif; /* clean modern font */
+  font-family: 'Poppins', sans-serif;
+  /* clean modern font */
 }
 
 /* FULL SCREEN AREA */
@@ -42,16 +43,19 @@ body {
 
 /* HEADING */
 .login-title {
-  font-size: 20px; /* smaller, cleaner */
+  font-size: 20px;
+  /* smaller, cleaner */
   font-weight: 600;
-  font-family: 'Inter', sans-serif; /* stylish, premium font */
+  font-family: 'Inter', sans-serif;
+  /* stylish, premium font */
   margin-bottom: 10px;
   color: #1d1d1d;
 }
 
 /* PARAGRAPH */
 .login-subtext {
-  font-size: 13px; /* smaller text */
+  font-size: 13px;
+  /* smaller text */
   color: #666;
   font-family: 'Inter', sans-serif;
   margin-bottom: 22px;
@@ -64,7 +68,8 @@ body {
   padding: 12px;
   font-size: 15px;
   border-radius: 8px;
-  border: 2px solid #1c5f1a; /* dark green border */
+  border: 2px solid #1c5f1a;
+  /* dark green border */
   outline: none;
   transition: 0.3s ease;
   margin-bottom: 16px;
@@ -99,8 +104,63 @@ body {
     opacity: 0;
     transform: scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* DIVIDER */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  color: #666;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #dbdbdb;
+}
+
+.auth-divider span {
+  padding: 0 10px;
+}
+
+/* GOOGLE BUTTON */
+.google-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #666;
+  font-size: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Inter', sans-serif;
+}
+
+.google-btn:hover {
+  background: #f8f8f8;
+  border-color: #ccc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.google-btn img {
+  width: 18px;
+  height: 18px;
 }

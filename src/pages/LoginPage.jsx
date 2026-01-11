@@ -6,7 +6,7 @@ import './LoginPage.css';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
 
@@ -85,6 +85,25 @@ export default function LoginPage() {
 
             <button type="submit" className="login-btn">
               Log In
+            </button>
+
+            <div className="auth-divider">
+              <span>OR</span>
+            </div>
+
+            <button
+              type="button"
+              className="google-btn"
+              onClick={async () => {
+                const res = await loginWithGoogle();
+                if (!res.success) setError(res.message);
+              }}
+            >
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="Google"
+              />
+              Sign in with Google
             </button>
           </form>
 
