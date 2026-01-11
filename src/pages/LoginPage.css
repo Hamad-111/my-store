@@ -22,8 +22,9 @@ body {
   border-radius: 5px;
   width: 500px;
   margin-right: 350px;
-  height: 550px;
-  overflow: hidden;
+  height: auto;
+  min-height: 550px;
+  overflow: visible;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   animation: fadeIn 0.4s ease-in-out;
 }
