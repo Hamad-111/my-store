@@ -7,7 +7,7 @@ export default function SignupPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { signup, loginWithGoogle } = useAuth();
+    const { signup } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
 
@@ -68,24 +68,7 @@ export default function SignupPage() {
                             Sign Up
                         </button>
 
-                        <div className="auth-divider">
-                            <span>OR</span>
-                        </div>
 
-                        <button
-                            type="button"
-                            className="google-btn"
-                            onClick={async () => {
-                                const res = await loginWithGoogle();
-                                if (!res.success) setError(res.message);
-                            }}
-                        >
-                            <img
-                                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                                alt="Google"
-                            />
-                            Sign up with Google
-                        </button>
                     </form>
 
                     <div className="login-footer">

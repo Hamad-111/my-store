@@ -16,6 +16,10 @@ import {
 
   Database,
   Menu,
+  MessageSquare,
+  Eye,
+
+  CheckCircle,
   X,
 } from 'lucide-react';
 
@@ -91,6 +95,12 @@ export default function AdminDashboard() {
   const [customers, setCustomers] = useState([]);
   const [loadingCustomers, setLoadingCustomers] = useState(false);
 
+  const [complaints, setComplaints] = useState([]);
+  const [loadingComplaints, setLoadingComplaints] = useState(false);
+
+  const [selectedOrder, setSelectedOrder] = useState(null); // ✅ NEW: Order Details Modal
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
   // ------------------------
   // Effects
   // ------------------------
@@ -108,6 +118,7 @@ export default function AdminDashboard() {
     if (activeTab === 'products') fetchProducts();
     if (activeTab === 'orders') fetchOrders();
     if (activeTab === 'customers') fetchCustomers();
+    if (activeTab === 'complaints') fetchComplaints();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, productCategory]);
 
@@ -374,6 +385,28 @@ export default function AdminDashboard() {
     setLoadingOrders(false);
   };
 
+  const handleUpdateOrderStatus = async (id, newStatus) => {
+    if (!confirm(`Are you sure you want to mark this order as ${newStatus}?`)) return;
+
+    setUpdatingStatus(true);
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', id);
+
+    if (error) {
+      alert('Error updating order: ' + error.message);
+    } else {
+      // Update local state
+      setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
+      if (selectedOrder && selectedOrder.id === id) {
+        setSelectedOrder({ ...selectedOrder, status: newStatus });
+      }
+      alert('Order status updated!');
+    }
+    setUpdatingStatus(false);
+  };
+
   // ------------------------
   // Customers
   // ------------------------
@@ -387,6 +420,33 @@ export default function AdminDashboard() {
 
     if (!error) setCustomers(data || []);
     setLoadingCustomers(false);
+  };
+
+  // ------------------------
+  // Complaints
+  // ------------------------
+  const fetchComplaints = async () => {
+    setLoadingComplaints(true);
+    const { data, error } = await supabase
+      .from('complaints')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error) setComplaints(data || []);
+    setLoadingComplaints(false);
+  };
+
+  const handleUpdateComplaintStatus = async (id, newStatus) => {
+    const { error } = await supabase
+      .from('complaints')
+      .update({ status: newStatus })
+      .eq('id', id);
+
+    if (error) {
+      alert('Error updating status: ' + error.message);
+    } else {
+      setComplaints(complaints.map(c => c.id === id ? { ...c, status: newStatus } : c));
+    }
   };
 
   // ------------------------
@@ -687,6 +747,19 @@ export default function AdminDashboard() {
           <li className="sidebar-item">
             <a
               href="#"
+              className={`sidebar-link ${activeTab === 'complaints' ? 'active' : ''}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab('complaints');
+              }}
+            >
+              <MessageSquare size={20} /> Complaints
+            </a>
+          </li>
+
+          <li className="sidebar-item">
+            <a
+              href="#"
               className={`sidebar-link ${activeTab === 'settings' ? 'active' : ''
                 }`}
               onClick={(e) => {
@@ -727,7 +800,9 @@ export default function AdminDashboard() {
                       ? 'Manage Products'
                       : activeTab === 'customers'
                         ? 'Customer List'
-                        : 'Settings'}
+                        : activeTab === 'complaints'
+                          ? 'User Complaints'
+                          : 'Settings'}
             </h1>
           </div>
 
@@ -884,6 +959,22 @@ export default function AdminDashboard() {
                             >
                               {order.status || 'Pending'}
                             </span>
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => setSelectedOrder(order)}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                color: '#3b82f6',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 5
+                              }}
+                            >
+                              <Eye size={18} /> View
+                            </button>
                           </td>
                         </tr>
                       ))
@@ -1439,6 +1530,7 @@ export default function AdminDashboard() {
                       <th>Date</th>
                       <th>Total</th>
                       <th>Status</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
 
@@ -1465,11 +1557,116 @@ export default function AdminDashboard() {
                               {order.status || 'Pending'}
                             </span>
                           </td>
+                          <td>
+                            <button
+                              onClick={() => setSelectedOrder(order)}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                color: '#3b82f6',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 5
+                              }}
+                            >
+                              <Eye size={18} /> View
+                            </button>
+                          </td>
                         </tr>
                       ))
                     )}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* ✅ ORDER DETAILS MODAL */}
+            {selectedOrder && (
+              <div className="modal-overlay">
+                <div className="modal-content" style={{ maxWidth: '800px', width: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <h3>Order Details #{selectedOrder.id?.slice(0, 8)}</h3>
+                    <button onClick={() => setSelectedOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                      <X size={24} />
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+                    <div style={{ background: '#f9fafb', padding: 15, borderRadius: 8 }}>
+                      <h4 style={{ marginBottom: 10, borderBottom: '1px solid #ddd', paddingBottom: 5 }}>Customer Info</h4>
+                      <p><strong>Name:</strong> {selectedOrder.shipping_address?.fullName}</p>
+                      <p><strong>Email:</strong> {selectedOrder.shipping_address?.email}</p>
+                      <p><strong>Phone:</strong> {selectedOrder.shipping_address?.phone}</p>
+                      <p><strong>City:</strong> {selectedOrder.shipping_address?.city}</p>
+                      <p><strong>Address:</strong> {selectedOrder.shipping_address?.address}</p>
+                      {selectedOrder.shipping_address?.notes && (
+                        <p><strong>Notes:</strong> {selectedOrder.shipping_address.notes}</p>
+                      )}
+                    </div>
+
+                    <div style={{ background: '#f9fafb', padding: 15, borderRadius: 8 }}>
+                      <h4 style={{ marginBottom: 10, borderBottom: '1px solid #ddd', paddingBottom: 5 }}>Order Summary</h4>
+                      <p><strong>Date:</strong> {new Date(selectedOrder.created_at).toLocaleString()}</p>
+                      <p><strong>Total Amount:</strong> PKR {selectedOrder.total_amount?.toLocaleString()}</p>
+                      <div style={{ marginTop: 15 }}>
+                        <label style={{ display: 'block', marginBottom: 5, fontSize: 14 }}>Update Status:</label>
+                        <select
+                          value={selectedOrder.status || 'Pending'}
+                          onChange={(e) => handleUpdateOrderStatus(selectedOrder.id, e.target.value)}
+                          disabled={updatingStatus}
+                          style={{
+                            width: '100%',
+                            padding: 8,
+                            borderRadius: 4,
+                            border: '1px solid #ddd'
+                          }}
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Processing">Processing</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h4>Order Items</h4>
+                  <div className="table-responsive">
+                    <table className="custom-table">
+                      <thead>
+                        <tr>
+                          <th>Image</th>
+                          <th>Product</th>
+                          <th>Size</th>
+                          <th>Qty</th>
+                          <th>Price</th>
+                          <th>Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(selectedOrder.items || []).map((item, idx) => (
+                          <tr key={idx}>
+                            <td>
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                              />
+                            </td>
+                            <td>{item.name}</td>
+                            <td>{item.size || '-'}</td>
+                            <td>{item.qty}</td>
+                            <td>{Number(item.price).toLocaleString()}</td>
+                            <td>{(Number(item.price) * Number(item.qty)).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
               </div>
             )}
           </div>
@@ -1504,6 +1701,69 @@ export default function AdminDashboard() {
                         <td>{new Date(c.created_at).toLocaleDateString()}</td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ✅ COMPLAINTS */}
+        {activeTab === 'complaints' && (
+          <div className="complaints-manager" style={{ background: 'white', borderRadius: 8, padding: '1rem' }}>
+            <h3>User Complaints</h3>
+            {loadingComplaints ? (
+              <p>Loading...</p>
+            ) : (
+              <div className="table-responsive">
+                <table className="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Order ID</th>
+                      <th>Message</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {complaints.length === 0 ? (
+                      <tr><td colSpan="7" style={{ textAlign: 'center' }}>No complaints found.</td></tr>
+                    ) : (
+                      complaints.map(c => (
+                        <tr key={c.id}>
+                          <td>{new Date(c.created_at).toLocaleDateString()}</td>
+                          <td>{c.name}</td>
+                          <td>{c.email}</td>
+                          <td>{c.order_id || '-'}</td>
+                          <td style={{ maxWidth: '300px' }}>{c.message}</td>
+                          <td>
+                            <span className={`status-badge ${c.status === 'Resolved' ? 'status-completed' : 'status-pending'}`}>
+                              {c.status}
+                            </span>
+                          </td>
+                          <td>
+                            {c.status !== 'Resolved' && (
+                              <button
+                                onClick={() => handleUpdateComplaintStatus(c.id, 'Resolved')}
+                                style={{
+                                  padding: '5px 10px',
+                                  background: '#16a34a',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: 4,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Mark Resolved
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

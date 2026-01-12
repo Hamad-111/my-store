@@ -341,7 +341,7 @@
   overflow: hidden;
 }
 
-.pd-accordion-item + .pd-accordion-item {
+.pd-accordion-item+.pd-accordion-item {
   border-top: 1px solid #eee;
 }
 
@@ -768,8 +768,11 @@
 
   .pd-main-img {
     width: 100%;
-    max-width: 420px;
-    height: 420px;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 3/4;
+    /* Better ratio for fashion products on mobile */
+    object-fit: contain;
     margin-top: 10px;
   }
 
