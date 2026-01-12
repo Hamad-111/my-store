@@ -77,11 +77,7 @@ export default function LoginPage() {
               required
             />
 
-            <div className="form-help">
-              <span style={{ fontSize: '0.8rem', color: '#666' }}>
-                (Try <b>admin@mystore.com</b> / <b>admin123</b> for Admin)
-              </span>
-            </div>
+
 
             <button type="submit" className="login-btn">
               Log In
