@@ -70,23 +70,34 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Push page down (70px top bar + ~40px secondary) */
+/* Push page down (100px top bar + ~40px secondary) */
 .page-content {
-  padding-top: 120px;
+  padding-top: 150px;
 }
 
 /* ===== TOP FIXED NAVBAR (your old one, same style) ===== */
 .nav-wrapper {
-  background-color: #f6f7f5;
+  background-color: #ffffff;
   padding: 0.4rem 1rem;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px;
+  height: 100px;
   z-index: 1000;
   display: flex;
   justify-content: center;
+}
+
+/* ... existing styles ... */
+
+.brand-logo {
+  height: 85px !important;
+  max-height: 90px !important;
+  width: auto;
+  object-fit: contain;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
 .nav-container {
@@ -282,14 +293,25 @@ body {
 /* ===== SECONDARY NAVBAR (MEN / WOMEN etc.) ===== */
 .secondary-nav {
   position: fixed;
-  top: 100px;
-  /* پہلے 70 تھا، 72–80 تک رکھ سکتی ہو */
+  top: 120px;
+  /* Adjusted for taller navbar */
   left: 0;
   width: 100%;
   background: #ffffff;
   border-bottom: 1px solid #e5e5e5;
   z-index: 1200;
   /* اوپر نظر آئے، کہیں hide نہ ہو */
+}
+
+/* ... existing styles ... */
+
+.brand-logo {
+  height: 95px !important;
+  max-height: 100px !important;
+  width: auto;
+  object-fit: contain;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
 .main-menu-wrapper {
