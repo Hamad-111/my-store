@@ -560,20 +560,12 @@ body {
 }
 
 .brand-logo {
-  height: 70px !important;
-  max-height: none !important;
+  height: 65px !important;
+  max-height: 70px !important;
   width: auto;
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.2s ease;
-}
-
-.brand-logo:hover {
-  transform: scale(1.08);
-}
-
-.brand-logo {
-  height: 45px;
 }
 
 
