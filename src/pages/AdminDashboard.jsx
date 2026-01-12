@@ -36,6 +36,7 @@ import menProducts from '../data/MenProducts';
 
 import AdminSettings from '../components/admin/AdminSettings';
 import AddProductForm from '../components/admin/AddProductForm';
+import { sendOrderConfirmationEmail } from '../utils/emailService';
 
 // ✅ DEFAULT 6 BRANDS (auto add if missing)
 const DEFAULT_BRANDS = [
@@ -402,9 +403,33 @@ export default function AdminDashboard() {
       if (selectedOrder && selectedOrder.id === id) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
+
+      // ✅ Trigger email if status is 'Confirmed'
+      if (newStatus === 'Confirmed' || newStatus === 'confirmed') {
+        // Find the full order object to pass details
+        const currentOrder = orders.find(o => o.id === id) || selectedOrder;
+        if (currentOrder) {
+          // Pass the updated status just in case, though mostly we need email/name
+          await sendOrderConfirmationEmail({ ...currentOrder, status: newStatus });
+        }
+      }
+
       alert('Order status updated!');
     }
+
     setUpdatingStatus(false);
+  };
+
+  const handleSendConfirmation = async (order) => {
+    if (!confirm('Send confirmation email to customer?')) return;
+
+    setUpdatingStatus(true);
+    const success = await sendOrderConfirmationEmail(order);
+    setUpdatingStatus(false);
+
+    if (success) {
+      alert('Confirmation email sent successfully!');
+    }
   };
 
   // ------------------------
@@ -1627,7 +1652,32 @@ export default function AdminDashboard() {
                           <option value="Shipped">Shipped</option>
                           <option value="Delivered">Delivered</option>
                           <option value="Cancelled">Cancelled</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
                         </select>
+                      </div>
+
+                      <div style={{ marginTop: 15 }}>
+                        <button
+                          onClick={() => handleSendConfirmation(selectedOrder)}
+                          disabled={updatingStatus}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            backgroundColor: '#16a34a',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 4,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 8,
+                            fontWeight: '600'
+                          }}
+                        >
+                          <MessageSquare size={18} /> Send Confirmation Email
+                        </button>
                       </div>
                     </div>
                   </div>

@@ -3,7 +3,7 @@
   background: transparent;
   padding: 8px 0;
   margin: 0;
-  margin-top: 100px;
+  margin-top: 140px;
 }
 
 .breadcrumbs-inner {
@@ -42,6 +42,7 @@
   .breadcrumbs-inner {
     padding: 0 16px;
   }
+
   .bc-item {
     font-size: 12px;
   }

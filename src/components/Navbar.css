@@ -70,9 +70,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Push page down (100px top bar + ~40px secondary) */
+/* Push page down (70px top bar + ~50px secondary) */
 .page-content {
-  padding-top: 150px;
+  padding-top: 130px;
 }
 
 /* ===== TOP FIXED NAVBAR (your old one, same style) ===== */
@@ -83,7 +83,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100px;
+  height: 70px;
   z-index: 1000;
   display: flex;
   justify-content: center;
@@ -92,8 +92,8 @@ body {
 /* ... existing styles ... */
 
 .brand-logo {
-  height: 85px !important;
-  max-height: 90px !important;
+  height: 60px !important;
+  max-height: 60px !important;
   width: auto;
   object-fit: contain;
   cursor: pointer;
@@ -293,7 +293,7 @@ body {
 /* ===== SECONDARY NAVBAR (MEN / WOMEN etc.) ===== */
 .secondary-nav {
   position: fixed;
-  top: 120px;
+  top: 70px;
   /* Adjusted for taller navbar */
   left: 0;
   width: 100%;
@@ -306,8 +306,8 @@ body {
 /* ... existing styles ... */
 
 .brand-logo {
-  height: 95px !important;
-  max-height: 100px !important;
+  height: 60px !important;
+  max-height: 60px !important;
   width: auto;
   object-fit: contain;
   cursor: pointer;

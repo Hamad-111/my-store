@@ -16,7 +16,7 @@ const faqs = [
   {
     question: 'Sign Up and Login',
     answer:
-      'Create an account to view your order history, manage your addresses, and enjoy faster checkout. You can also log in using your Google account.',
+      'Create an account to view your order history, manage your addresses, and enjoy faster checkout.',
   },
   {
     question: 'Returns and Replacement',
@@ -74,9 +74,8 @@ export default function FAQ() {
 
               {/* Only one open at a time */}
               <div
-                className={`faq-answer-wrapper ${
-                  openIndex === index ? 'open' : ''
-                }`}
+                className={`faq-answer-wrapper ${openIndex === index ? 'open' : ''
+                  }`}
               >
                 <div className="faq-answer">{faq.answer}</div>
               </div>

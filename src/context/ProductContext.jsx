@@ -15,7 +15,7 @@ import readyToWearProductsRaw from '../data/ReadyToWearProducts';
 import accessoriesRaw from '../data/AccessoriesProducts';
 import menProductsRaw from '../data/MenProducts';
 // ✅ Toggle: for now show only local data (10/10/10). Later set false.
-const LOCAL_ONLY = true;
+const LOCAL_ONLY = false;
 
 const ProductContext = createContext();
 
@@ -43,7 +43,7 @@ function normalizeDbImages(p) {
   const imgs = Array.isArray(p.images)
     ? p.images
     : typeof p.images === 'string'
-    ? (() => {
+      ? (() => {
         try {
           const parsed = JSON.parse(p.images);
           return Array.isArray(parsed) ? parsed : [];
@@ -51,7 +51,7 @@ function normalizeDbImages(p) {
           return [];
         }
       })()
-    : [];
+      : [];
 
   const one =
     p.image ||
