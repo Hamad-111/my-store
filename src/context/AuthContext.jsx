@@ -159,11 +159,7 @@ export const AuthProvider = ({ children }) => {
     return { success: true };
   };
 
-<<<<<<< Updated upstream
 
-
-=======
->>>>>>> Stashed changes
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -174,9 +170,6 @@ export const AuthProvider = ({ children }) => {
   // Don't block whole app with spinner on auth bootstrap.
   // Instead expose `authReady` and let guarded pages wait.
   return (
-<<<<<<< Updated upstream
-    <AuthContext.Provider value={{ user, login, logout, signup, loading }}>
-=======
     <AuthContext.Provider
       value={{
         user,
@@ -187,7 +180,6 @@ export const AuthProvider = ({ children }) => {
         authReady, // ✅ use this in Cart/Wishlist guards
       }}
     >
->>>>>>> Stashed changes
       {children}
     </AuthContext.Provider>
   );
