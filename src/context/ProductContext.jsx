@@ -10,21 +10,11 @@ import React, {
 } from 'react';
 import { supabase } from '../supabaseClient';
 
-<<<<<<< Updated upstream
-// ✅ Local data
-import womenProductsRaw from '../data/WomenProducts';
-import readyToWearProductsRaw from '../data/ReadyToWearProducts';
-import accessoriesRaw from '../data/AccessoriesProducts';
-import menProductsRaw from '../data/MenProducts';
-// ✅ Toggle: for now show only local data (10/10/10). Later set false.
-const LOCAL_ONLY = false;
-=======
 // ✅ Local data imports
 import womenProducts from '../data/WomenProducts';
 import readyProducts from '../data/ReadyToWearProducts';
 import accessories from '../data/AccessoriesProducts';
 import menProducts from '../data/MenProducts';
->>>>>>> Stashed changes
 
 const ProductContext = createContext(null);
 
@@ -43,7 +33,6 @@ function normalizeDbImages(p) {
     ? p.images
     : typeof p.images === 'string'
       ? (() => {
-<<<<<<< Updated upstream
         try {
           const parsed = JSON.parse(p.images);
           return Array.isArray(parsed) ? parsed : [];
@@ -51,15 +40,6 @@ function normalizeDbImages(p) {
           return [];
         }
       })()
-=======
-          try {
-            const parsed = JSON.parse(p.images);
-            return Array.isArray(parsed) ? parsed : [];
-          } catch {
-            return [];
-          }
-        })()
->>>>>>> Stashed changes
       : [];
 
   const one =
