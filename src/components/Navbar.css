@@ -70,9 +70,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Push page down (70px top bar + ~50px secondary) */
+/* Push page down (100px top bar + ~50px secondary) */
 .page-content {
-  padding-top: 130px;
+  padding-top: 160px;
 }
 
 /* ===== TOP FIXED NAVBAR (your old one, same style) ===== */
@@ -83,8 +83,8 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px;
-  z-index: 1000;
+  height: 100px;
+  z-index: 1300;
   display: flex;
   justify-content: center;
 }
@@ -293,7 +293,7 @@ body {
 /* ===== SECONDARY NAVBAR (MEN / WOMEN etc.) ===== */
 .secondary-nav {
   position: fixed;
-  top: 70px;
+  top: 100px;
   /* Adjusted for taller navbar */
   left: 0;
   width: 100%;
@@ -538,10 +538,7 @@ body {
 }
 
 /* secondary nav should be lower than suggestions */
-.secondary-nav {
-  position: relative;
-  z-index: 10;
-}
+
 
 /* suggestion item layout */
 .suggestion-item {
@@ -581,14 +578,7 @@ body {
   margin: 2px 0 0;
 }
 
-.brand-logo {
-  height: 65px !important;
-  max-height: 70px !important;
-  width: auto;
-  object-fit: contain;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
+
 
 
 /* ✅ MOBILE NAV DRAWER */

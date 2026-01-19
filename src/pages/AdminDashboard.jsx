@@ -310,14 +310,17 @@ export default function AdminDashboard() {
       let totalRevenue = 0;
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
-        .select('total_amount');
+        .select('total_amount, status');
 
       if (!orderError && orderData) {
         totalOrders = orderData.length;
-        totalRevenue = orderData.reduce(
-          (sum, order) => sum + (Number(order.total_amount) || 0),
-          0
-        );
+        totalRevenue = orderData.reduce((sum, order) => {
+          // Exclude cancelled orders
+          if (order.status && order.status.toLowerCase() === 'cancelled') {
+            return sum;
+          }
+          return sum + (Number(order.total_amount) || 0);
+        }, 0);
       }
 
       setStats({
@@ -399,7 +402,9 @@ export default function AdminDashboard() {
       alert('Error updating order: ' + error.message);
     } else {
       // Update local state
-      setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
+      // Update local state safely
+      setOrders((prev) => prev.map(o => o.id === id ? { ...o, status: newStatus } : o));
+
       if (selectedOrder && selectedOrder.id === id) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
@@ -415,8 +420,34 @@ export default function AdminDashboard() {
       }
 
       alert('Order status updated!');
+      fetchStats(); // ✅ Refresh stats immediately
     }
 
+    setUpdatingStatus(false);
+  };
+
+  const handleDeleteOrder = async (id) => {
+    if (!confirm('Are you sure you want to DELETE this order permanently?')) return;
+
+    setUpdatingStatus(true);
+    // Select returned data to verify deletion
+    const { error, data } = await supabase.from('orders').delete().eq('id', id).select();
+
+    if (error) {
+      alert('Error deleting order: ' + error.message);
+    } else if (!data || data.length === 0) {
+      // ✅ Handle silent failure (RLS or not found)
+      alert('Failed to delete order from database. You might not have permission (RLS Policy).');
+      // Revert local state to avoid confusion (fetch fresh data)
+      fetchOrders();
+    } else {
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+      if (selectedOrder && selectedOrder.id === id) {
+        setSelectedOrder(null);
+      }
+      alert('Order deleted successfully!');
+      fetchStats();
+    }
     setUpdatingStatus(false);
   };
 
@@ -954,6 +985,7 @@ export default function AdminDashboard() {
                       <th>Date</th>
                       <th>Total</th>
                       <th>Status</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
 
@@ -999,6 +1031,39 @@ export default function AdminDashboard() {
                               }}
                             >
                               <Eye size={18} /> View
+                            </button>
+                            {(order.status !== 'Cancelled' && order.status !== 'Delivered') && (
+                              <button
+                                onClick={() => handleUpdateOrderStatus(order.id, 'Cancelled')}
+                                style={{
+                                  border: 'none',
+                                  background: 'transparent',
+                                  cursor: 'pointer',
+                                  color: '#ef4444',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 5,
+                                  marginLeft: 10
+                                }}
+                                title="Cancel Order"
+                              >
+                                <X size={18} /> Cancel
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteOrder(order.id)}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                color: '#ef4444',
+                                display: 'flex',
+                                alignItems: 'center',
+                                marginLeft: 10
+                              }}
+                              title="Delete Order"
+                            >
+                              <Trash2 size={18} />
                             </button>
                           </td>
                         </tr>
@@ -1597,6 +1662,39 @@ export default function AdminDashboard() {
                             >
                               <Eye size={18} /> View
                             </button>
+                            {(order.status !== 'Cancelled' && order.status !== 'Delivered') && (
+                              <button
+                                onClick={() => handleUpdateOrderStatus(order.id, 'Cancelled')}
+                                style={{
+                                  border: 'none',
+                                  background: 'transparent',
+                                  cursor: 'pointer',
+                                  color: '#ef4444',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 5,
+                                  marginLeft: 10
+                                }}
+                                title="Cancel Order"
+                              >
+                                <X size={18} /> Cancel
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteOrder(order.id)}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                color: '#ef4444',
+                                display: 'flex',
+                                alignItems: 'center',
+                                marginLeft: 10
+                              }}
+                              title="Delete Order"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </td>
                         </tr>
                       ))
@@ -1606,119 +1704,7 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* ✅ ORDER DETAILS MODAL */}
-            {selectedOrder && (
-              <div className="modal-overlay">
-                <div className="modal-content" style={{ maxWidth: '800px', width: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                    <h3>Order Details #{selectedOrder.id?.slice(0, 8)}</h3>
-                    <button onClick={() => setSelectedOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                      <X size={24} />
-                    </button>
-                  </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
-                    <div style={{ background: '#f9fafb', padding: 15, borderRadius: 8 }}>
-                      <h4 style={{ marginBottom: 10, borderBottom: '1px solid #ddd', paddingBottom: 5 }}>Customer Info</h4>
-                      <p><strong>Name:</strong> {selectedOrder.shipping_address?.fullName}</p>
-                      <p><strong>Email:</strong> {selectedOrder.shipping_address?.email}</p>
-                      <p><strong>Phone:</strong> {selectedOrder.shipping_address?.phone}</p>
-                      <p><strong>City:</strong> {selectedOrder.shipping_address?.city}</p>
-                      <p><strong>Address:</strong> {selectedOrder.shipping_address?.address}</p>
-                      {selectedOrder.shipping_address?.notes && (
-                        <p><strong>Notes:</strong> {selectedOrder.shipping_address.notes}</p>
-                      )}
-                    </div>
-
-                    <div style={{ background: '#f9fafb', padding: 15, borderRadius: 8 }}>
-                      <h4 style={{ marginBottom: 10, borderBottom: '1px solid #ddd', paddingBottom: 5 }}>Order Summary</h4>
-                      <p><strong>Date:</strong> {new Date(selectedOrder.created_at).toLocaleString()}</p>
-                      <p><strong>Total Amount:</strong> PKR {selectedOrder.total_amount?.toLocaleString()}</p>
-                      <div style={{ marginTop: 15 }}>
-                        <label style={{ display: 'block', marginBottom: 5, fontSize: 14 }}>Update Status:</label>
-                        <select
-                          value={selectedOrder.status || 'Pending'}
-                          onChange={(e) => handleUpdateOrderStatus(selectedOrder.id, e.target.value)}
-                          disabled={updatingStatus}
-                          style={{
-                            width: '100%',
-                            padding: 8,
-                            borderRadius: 4,
-                            border: '1px solid #ddd'
-                          }}
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="Processing">Processing</option>
-                          <option value="Shipped">Shipped</option>
-                          <option value="Delivered">Delivered</option>
-                          <option value="Cancelled">Cancelled</option>
-                          <option value="Delivered">Delivered</option>
-                          <option value="Cancelled">Cancelled</option>
-                        </select>
-                      </div>
-
-                      <div style={{ marginTop: 15 }}>
-                        <button
-                          onClick={() => handleSendConfirmation(selectedOrder)}
-                          disabled={updatingStatus}
-                          style={{
-                            width: '100%',
-                            padding: '10px',
-                            backgroundColor: '#16a34a',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: 4,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 8,
-                            fontWeight: '600'
-                          }}
-                        >
-                          <MessageSquare size={18} /> Send Confirmation Email
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <h4>Order Items</h4>
-                  <div className="table-responsive">
-                    <table className="custom-table">
-                      <thead>
-                        <tr>
-                          <th>Image</th>
-                          <th>Product</th>
-                          <th>Size</th>
-                          <th>Qty</th>
-                          <th>Price</th>
-                          <th>Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(selectedOrder.items || []).map((item, idx) => (
-                          <tr key={idx}>
-                            <td>
-                              <img
-                                src={item.image}
-                                alt={item.name}
-                                style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
-                              />
-                            </td>
-                            <td>{item.name}</td>
-                            <td>{item.size || '-'}</td>
-                            <td>{item.qty}</td>
-                            <td>{Number(item.price).toLocaleString()}</td>
-                            <td>{(Number(item.price) * Number(item.qty)).toLocaleString()}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -1823,6 +1809,120 @@ export default function AdminDashboard() {
 
         {/* ✅ SETTINGS */}
         {activeTab === 'settings' && <AdminSettings user={user} />}
+
+        {/* ✅ ORDER DETAILS MODAL */}
+        {selectedOrder && (
+          <div className="modal-overlay">
+            <div className="modal-content" style={{ maxWidth: '800px', width: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <h3>Order Details #{selectedOrder.id?.slice(0, 8)}</h3>
+                <button onClick={() => setSelectedOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+                <div style={{ background: '#f9fafb', padding: 15, borderRadius: 8 }}>
+                  <h4 style={{ marginBottom: 10, borderBottom: '1px solid #ddd', paddingBottom: 5 }}>Customer Info</h4>
+                  <p><strong>Name:</strong> {selectedOrder.shipping_address?.fullName}</p>
+                  <p><strong>Email:</strong> {selectedOrder.shipping_address?.email}</p>
+                  <p><strong>Phone:</strong> {selectedOrder.shipping_address?.phone}</p>
+                  <p><strong>City:</strong> {selectedOrder.shipping_address?.city}</p>
+                  <p><strong>Address:</strong> {selectedOrder.shipping_address?.address}</p>
+                  {selectedOrder.shipping_address?.notes && (
+                    <p><strong>Notes:</strong> {selectedOrder.shipping_address.notes}</p>
+                  )}
+                </div>
+
+                <div style={{ background: '#f9fafb', padding: 15, borderRadius: 8 }}>
+                  <h4 style={{ marginBottom: 10, borderBottom: '1px solid #ddd', paddingBottom: 5 }}>Order Summary</h4>
+                  <p><strong>Date:</strong> {new Date(selectedOrder.created_at).toLocaleString()}</p>
+                  <p><strong>Total Amount:</strong> PKR {selectedOrder.total_amount?.toLocaleString()}</p>
+                  <div style={{ marginTop: 15 }}>
+                    <label style={{ display: 'block', marginBottom: 5, fontSize: 14 }}>Update Status:</label>
+                    <select
+                      value={selectedOrder.status || 'Pending'}
+                      onChange={(e) => handleUpdateOrderStatus(selectedOrder.id, e.target.value)}
+                      disabled={updatingStatus}
+                      style={{
+                        width: '100%',
+                        padding: 8,
+                        borderRadius: 4,
+                        border: '1px solid #ddd'
+                      }}
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+
+                  <div style={{ marginTop: 15 }}>
+                    <button
+                      onClick={() => handleSendConfirmation(selectedOrder)}
+                      disabled={updatingStatus}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        backgroundColor: '#16a34a',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        fontWeight: '600'
+                      }}
+                    >
+                      <MessageSquare size={18} /> Send Confirmation Email
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <h4>Order Items</h4>
+              <div className="table-responsive">
+                <table className="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Product</th>
+                      <th>Size</th>
+                      <th>Qty</th>
+                      <th>Price</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(selectedOrder.items || []).map((item, idx) => (
+                      <tr key={idx}>
+                        <td>
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                          />
+                        </td>
+                        <td>{item.name}</td>
+                        <td>{item.size || '-'}</td>
+                        <td>{item.qty}</td>
+                        <td>{Number(item.price).toLocaleString()}</td>
+                        <td>{(Number(item.price) * Number(item.qty)).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
