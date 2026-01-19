@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
 import { useProducts } from '../context/ProductContext';
+import { useAuth } from '../context/AuthContext';
+import { pushPendingAction } from '../utils/pendingActions';
 
 import './SharedCard.css'; // ✅ important (or import it globally once)
 
@@ -11,6 +13,7 @@ export default function NewArrivals() {
   const navigate = useNavigate();
   const { addToWishlist } = useWishlist();
   const { products = [], loading } = useProducts();
+  const { user } = useAuth();
 
   const newProducts = useMemo(() => {
     const list = (products || []).filter(
@@ -31,18 +34,50 @@ export default function NewArrivals() {
     e.preventDefault();
     e.stopPropagation();
 
+    const title = item.title || item.name || 'Product';
+    const coverImg = item.image || item.images?.[0] || '';
+
+    // ✅ Guest => pending + login
+    if (!user) {
+      const snapshot = {
+        id: String(item.id),
+        title,
+        name: title,
+        brand: item.brand || '',
+        image: coverImg,
+        price: Number(item.price || 0),
+        salePercent: Number(item.salePercent || 0),
+        originalPrice: Number(item.originalPrice || item.price || 0),
+        size: item.size || null,
+      };
+
+      pushPendingAction({
+        type: 'ADD_TO_WISHLIST',
+        productId: String(item.id),
+        size: snapshot.size || null,
+        redirectBack: '/wishlist',
+        snapshot,
+      });
+
+      navigate('/login', { state: { pulse: true } });
+      return;
+    }
+
+    // ✅ Logged in => normal wishlist
     addToWishlist({
       id: item.id,
-      name: item.title || item.name || 'Product',
-      title: item.title || item.name || 'Product',
+      name: title,
+      title,
       brand: item.brand || '',
-      image: item.image || item.images?.[0] || '',
+      image: coverImg,
       price: Number(item.price || 0),
       salePercent: Number(item.salePercent || 0),
       originalPrice: Number(item.originalPrice || item.price || 0),
       inStock: item.inStock !== false,
       size: item.size || null,
     });
+
+    navigate('/wishlist');
   }
 
   return (

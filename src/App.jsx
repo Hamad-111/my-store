@@ -29,7 +29,7 @@ import ColorPage from './pages/ColorPage';
 import ComparePage from './pages/ComparePage';
 import AccessoriesPage from './pages/AccessoriesPage';
 import ReadyToWearPage from './pages/ReadyToWearPage';
-import WesternPage from './pages/WesternPage';
+
 import MenPage from './pages/MenPage';
 import TermsPage from './pages/TermsPage';
 import ExchangePolicyPage from './pages/ExchangePolicyPage';
@@ -41,8 +41,6 @@ import CheckoutPage from './pages/CheckoutPage'; // Import CheckoutPage
 import StyleBot from './components/StyleBot'; // Import StyleBot
 import BestSellersPage from './pages/BestSellersPage';
 import Breadcrumbs from './components/Breadcrumbs';
-
-
 
 import { ProductProvider } from './context/ProductContext';
 import BrandProductsPage from './pages/BrandProductsPage';
@@ -93,7 +91,6 @@ function Layout() {
         <Route path="/accessories" element={<AccessoriesPage />} />
         <Route path="/ready-to-wear" element={<ReadyToWearPage />} />
 
-        <Route path="/western" element={<WesternPage />} />
         <Route path="/men" element={<MenPage />} />
 
         <Route path="/compare" element={<ComparePage />} />

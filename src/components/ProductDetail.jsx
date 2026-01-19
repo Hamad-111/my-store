@@ -1,22 +1,31 @@
-// src/pages/ProductDetail.jsx
+// ✅ src/pages/ProductDetail.jsx (FULL REWRITE — with your SAME UI structure)
+// ✅ Fixes you asked:
+// 1) Complete the Look smart: 2-piece (shirt+dupatta) => bottom, 2-piece (shirt+trouser) => dupatta,
+//    1-piece/top => bottom + dupatta, 3-piece => jewellery + hair + (optional)
+//    Always try SAME color + similar fabric + any brand allowed
+// 2) Related Products smart: same brand OR same category/mainCategory + same/near color + similar fabric + price range
+// 3) Keeps your stock/qty + pending login logic exactly safe
+
 import React, { useEffect, useMemo, useState } from 'react';
 import './ProductDetail.css';
 import { Heart, Shuffle, ChevronDown, Star } from 'lucide-react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useProducts } from '../context/ProductContext';
 import { useAuth } from '../context/AuthContext';
+import { pushPendingAction } from '../utils/pendingActions';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { addToCart } = useCart();
   const { addToWishlist } = useWishlist();
   const { products: allProducts = [], loading } = useProducts() || {};
+  const { user } = useAuth();
 
-  // ✅ states
   const [qty, setQty] = useState(1);
   const [mainImg, setMainImg] = useState('');
   const [localReviews, setLocalReviews] = useState([]);
@@ -29,20 +38,7 @@ export default function ProductDetail() {
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [selectedSize, setSelectedSize] = useState('');
 
-  // ---------------- COMPLETE LOOK RULES ----------------
-  const ACCESSORY_CATEGORIES = [
-    'BAGS',
-    'JEWELLRY',
-    'FOOTWEAR',
-    'SHAWLS',
-    'WATCHES',
-    'SUNGLASSES',
-    'SCARVES',
-    'HAIR ACCESSORIES',
-  ];
-
-  const WOMEN_MAIN = ['UNSTITCHED', 'READY_TO_WEAR'];
-
+  // ---------------- HELPERS ----------------
   const up = (v) =>
     String(v || '')
       .toUpperCase()
@@ -51,6 +47,96 @@ export default function ProductDetail() {
     String(v || '')
       .toLowerCase()
       .trim();
+
+  const safeNum = (v, fallback = 0) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  };
+
+  const textOf = (p) =>
+    [
+      p?.title,
+      p?.name,
+      p?.description,
+      p?.longDescription,
+      p?.tag,
+      p?.style,
+      p?.pieces,
+      p?.subCategory,
+      p?.rtwType,
+      p?.rtwSubType,
+      p?.unstitchedType,
+      p?.category,
+      p?.mainCategory,
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+  const tokens = (s) =>
+    low(s)
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(Boolean);
+
+  const jaccard = (aText, bText) => {
+    const A = new Set(tokens(aText));
+    const B = new Set(tokens(bText));
+    if (A.size === 0 || B.size === 0) return 0;
+    let inter = 0;
+    for (const w of A) if (B.has(w)) inter++;
+    const union = A.size + B.size - inter;
+    return union ? inter / union : 0;
+  };
+
+  const pieceCount = (p) => {
+    const s = low(p?.pieces);
+    const m = s.match(/(\d)\s*piece/);
+    if (m) return Number(m[1]);
+    return 0;
+  };
+
+  const colorBucket = (c) => {
+    const s = low(c);
+    if (!s) return 'other';
+    if (/(black|charcoal|jet)/.test(s)) return 'black';
+    if (/(white|offwhite|ivory|cream)/.test(s)) return 'white';
+    if (/(beige|sand|nude|camel|tan|khaki)/.test(s)) return 'beige';
+    if (/(red|maroon|burgundy|crimson|wine)/.test(s)) return 'red';
+    if (/(pink|fuchsia|rose|magenta)/.test(s)) return 'pink';
+    if (/(blue|navy|sky|cobalt|teal)/.test(s)) return 'blue';
+    if (/(green|olive|emerald|mint)/.test(s)) return 'green';
+    if (/(yellow|mustard|gold)/.test(s)) return 'yellow';
+    if (/(purple|violet|lilac)/.test(s)) return 'purple';
+    if (/(brown|chocolate|coffee)/.test(s)) return 'brown';
+    if (/(grey|gray|silver)/.test(s)) return 'grey';
+    return s;
+  };
+
+  const fabricBucket = (f) => {
+    const s = low(f);
+    if (!s) return 'other';
+    if (/cotton|cambric|lawn/.test(s)) return 'cotton';
+    if (/khaddar|karandi/.test(s)) return 'khaddar';
+    if (/linen/.test(s)) return 'linen';
+    if (/chiffon|georgette|organza/.test(s)) return 'sheer';
+    if (/silk|raw silk/.test(s)) return 'silk';
+    if (/velvet/.test(s)) return 'velvet';
+    return s;
+  };
+
+  const nearPrice = (base, cand, pct = 0.25) => {
+    const b = safeNum(base, 0);
+    const c = safeNum(cand, 0);
+    if (b <= 0 || c <= 0) return false;
+    return Math.abs(c - b) / b <= pct;
+  };
+
+  const uniqueById = (list) =>
+    Array.from(new Map((list || []).map((x) => [String(x.id), x])).values());
+
+  // ---------------- COMPLETE LOOK RULES ----------------
+  const ACCESSORY_CATEGORIES = ['JEWELLRY', 'SHAWLS', 'HAIR ACCESSORIES'];
+  const WOMEN_MAIN = ['UNSTITCHED', 'READY_TO_WEAR'];
 
   const isAccessory = (p) => ACCESSORY_CATEGORIES.includes(up(p?.mainCategory));
   const isShawl = (p) => up(p?.mainCategory) === 'SHAWLS';
@@ -69,7 +155,6 @@ export default function ProductDetail() {
     );
   };
 
-  // ✅ “shirt/kurti/top only” detection
   const isTopOnly = (base) => {
     const title = low(base?.title || base?.name);
     const sub = low(base?.subCategory);
@@ -93,7 +178,6 @@ export default function ProductDetail() {
     return false;
   };
 
-  // ✅ bottom detection (women + men)
   const isBottom = (p) => {
     const title = low(p?.title || p?.name);
     const sub = low(p?.subCategory);
@@ -102,6 +186,8 @@ export default function ProductDetail() {
 
     const bottomWords = [
       'trouser',
+      'trousers',
+      'pant',
       'pants',
       'bottom',
       'jeans',
@@ -122,35 +208,20 @@ export default function ProductDetail() {
     return false;
   };
 
-  const scoreMatch = (base, cand) => {
-    let s = 0;
-
-    const bBrand = low(base?.brand);
-    const cBrand = low(cand?.brand);
-    if (bBrand && cBrand && bBrand === cBrand) s += 30;
-
-    const bColor = low(base?.color);
-    const cColor = low(cand?.color);
-    if (bColor && cColor && bColor === cColor) s += 15;
-
-    const bTag = low(base?.tag);
-    const cTag = low(cand?.tag);
-    if (bTag && cTag && bTag === cTag) s += 8;
-
-    s += Math.min(20, Number(cand?.popularity || 0) / 5);
-    return s;
+  const hasDupattaInText = (p) => {
+    const t = low(textOf(p));
+    return t.includes('dupatta') || t.includes('dupata') || t.includes('shawl');
   };
 
-  const bestFromPool = (base, pool, limit) => {
-    return [...pool]
-      .map((p) => ({ p, s: scoreMatch(base, p) }))
-      .sort((a, b) => b.s - a.s)
-      .map((x) => x.p)
-      .slice(0, limit);
-  };
-
-  const uniqueById = (list) => {
-    return Array.from(new Map(list.map((x) => [String(x.id), x])).values());
+  const hasBottomInText = (p) => {
+    const t = low(textOf(p));
+    return (
+      t.includes('trouser') ||
+      t.includes('trousers') ||
+      t.includes('shalwar') ||
+      t.includes('pants') ||
+      t.includes('bottom')
+    );
   };
 
   // ---------------- PRODUCT FIND ----------------
@@ -168,12 +239,27 @@ export default function ProductDetail() {
     return merged.filter(Boolean);
   }, [product]);
 
+  // ✅ Stock
+  const maxQty = useMemo(() => {
+    return Math.max(0, Number(product?.stockQuantity || 0));
+  }, [product?.stockQuantity]);
+
+  const isOut = useMemo(() => {
+    return product?.inStock === false || maxQty <= 0;
+  }, [product?.inStock, maxQty]);
+
   useEffect(() => {
-    setQty(1);
     setMainImg(allImages[0] || '');
     setLocalReviews(Array.isArray(product?.reviews) ? product.reviews : []);
     setOpenSection(null);
     setSelectedSize('');
+
+    const mq = Math.max(0, Number(product?.stockQuantity || 0));
+    setQty((prev) => {
+      const start = 1;
+      if (mq <= 0) return start;
+      return Math.min(Math.max(1, prev || start), mq);
+    });
   }, [product, allImages]);
 
   const productName = product?.title || product?.name || 'Product';
@@ -183,21 +269,19 @@ export default function ProductDetail() {
     'No description available.';
 
   const isReadyToWear =
-    (product?.mainCategory || '').toUpperCase() === 'READY_TO_WEAR' ||
-    (product?.category || '').toUpperCase() === 'READYTOWEAR';
+    up(product?.mainCategory) === 'READY_TO_WEAR' ||
+    up(product?.category) === 'READYTOWEAR';
 
   const SIZE_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-  const handleSectionToggle = (section) => {
+  const handleSectionToggle = (section) =>
     setOpenSection((prev) => (prev === section ? null : section));
-  };
 
-  // ✅ rating summary
   const reviewCount = localReviews.length;
 
   const avgRating = useMemo(() => {
     if (!localReviews || localReviews.length === 0) return 0;
-    const sum = localReviews.reduce((acc, r) => acc + Number(r.rating || 0), 0);
+    const sum = localReviews.reduce((acc, r) => acc + safeNum(r.rating, 0), 0);
     return sum / localReviews.length;
   }, [localReviews]);
 
@@ -207,9 +291,8 @@ export default function ProductDetail() {
     return `${reviewCount} Reviews`;
   }, [reviewCount]);
 
-  // ✅ price logic
-  const price = Number(product?.price || 0);
-  const original = Number(product?.originalPrice || 0);
+  const price = safeNum(product?.price, 0);
+  const original = safeNum(product?.originalPrice, 0);
   const hasOriginal = original > price;
 
   const discountPercent = useMemo(() => {
@@ -223,8 +306,8 @@ export default function ProductDetail() {
       alert('Please enter your name and a comment.');
       return;
     }
-    const r = Math.max(1, Math.min(5, Number(reviewRating || 5)));
 
+    const r = Math.max(1, Math.min(5, safeNum(reviewRating, 5)));
     const newReview = {
       user: reviewName.trim(),
       rating: r,
@@ -237,85 +320,194 @@ export default function ProductDetail() {
     setReviewRating(5);
   };
 
-  // ✅ related products (same brand OR same category)
+  // ---------------- SMART RELATED PRODUCTS ----------------
   const relatedProducts = useMemo(() => {
     if (!product) return [];
-    return (allProducts || [])
-      .filter(
-        (p) =>
-          String(p.id) !== String(product.id) &&
-          (p.brand === product.brand ||
-            (p.category && product.category && p.category === product.category))
-      )
+
+    const base = product;
+    const baseColor = colorBucket(base.color);
+    const baseFabric = fabricBucket(base.fabric);
+    const basePrice = safeNum(base.price, 0);
+    const baseMain = up(base.mainCategory);
+    const baseCat = up(base.category);
+    const baseBrand = low(base.brand);
+
+    const pool = (allProducts || []).filter(
+      (p) => String(p.id) !== String(base.id)
+    );
+
+    const score = (cand) => {
+      let s = 0;
+
+      // same brand strongest
+      if (baseBrand && low(cand.brand) === baseBrand) s += 28;
+
+      // same main/category
+      if (up(cand.mainCategory) === baseMain) s += 16;
+      if (baseCat && up(cand.category) === baseCat) s += 10;
+
+      // color bucket match
+      if (colorBucket(cand.color) === baseColor) s += 18;
+
+      // fabric bucket match
+      if (fabricBucket(cand.fabric) === baseFabric) s += 12;
+
+      // near price
+      if (nearPrice(basePrice, cand.price, 0.3)) s += 14;
+
+      // text similarity small
+      s += Math.min(10, Math.round(jaccard(textOf(base), textOf(cand)) * 20));
+
+      // in stock + popularity
+      if (cand.inStock) s += 6;
+      s += Math.min(10, safeNum(cand.popularity, 0) / 10);
+
+      return s;
+    };
+
+    return pool
+      .map((p) => ({ p, s: score(p) }))
+      .sort((a, b) => b.s - a.s)
+      .map((x) => x.p)
       .slice(0, 4);
   }, [allProducts, product]);
 
-  // ✅ COMPLETE THE LOOK (NEW SMART LOGIC)
+  // ---------------- SMART COMPLETE THE LOOK ----------------
   const completeTheLook = useMemo(() => {
     if (!product) return [];
 
+    const base = product;
+    const baseColor = colorBucket(base.color);
+    const baseFabric = fabricBucket(base.fabric);
+
     const all = allProducts || [];
-    const others = all.filter((p) => String(p.id) !== String(product.id));
+    const others = all.filter((p) => String(p.id) !== String(base.id));
 
-    // accessory pools
-    const bags = others.filter((p) => up(p?.mainCategory) === 'BAGS');
-    const footwear = others.filter((p) => up(p?.mainCategory) === 'FOOTWEAR');
-    const jewellery = others.filter((p) => up(p?.mainCategory) === 'JEWELLRY');
-    const shawls = others.filter((p) => up(p?.mainCategory) === 'SHAWLS');
-    const watches = others.filter((p) => up(p?.mainCategory) === 'WATCHES');
-
-    // clothing pools
+    // pools
     const womenClothes = others.filter((p) => isWomenClothing(p));
     const menClothes = others.filter((p) => isMen(p) && !isAccessory(p));
 
-    // A) accessories => no complete look
-    // BUT shawl special case
-    if (isAccessory(product)) {
-      if (isShawl(product)) {
+    const jewelleryPool = others.filter(
+      (p) => up(p.mainCategory) === 'JEWELLRY'
+    );
+    const shawlPool = others.filter(
+      (p) => up(p.mainCategory) === 'SHAWLS' || hasDupattaInText(p)
+    );
+    const hairPool = others.filter(
+      (p) => up(p.mainCategory) === 'HAIR ACCESSORIES'
+    );
+    const bottomPoolWomen = womenClothes.filter((p) => isBottom(p));
+    const watchesPool = others.filter((p) => up(p.mainCategory) === 'WATCHES');
+
+    // scoring by role
+    const scoreRole = (cand, role) => {
+      let s = 0;
+
+      // role base
+      if (role === 'bottom' && isBottom(cand)) s += 22;
+      if (
+        role === 'dupatta' &&
+        (up(cand.mainCategory) === 'SHAWLS' || hasDupattaInText(cand))
+      )
+        s += 22;
+      if (role === 'jewellery' && up(cand.mainCategory) === 'JEWELLRY') s += 18;
+      if (role === 'hair' && up(cand.mainCategory) === 'HAIR ACCESSORIES')
+        s += 12;
+      if (role === 'watch' && up(cand.mainCategory) === 'WATCHES') s += 14;
+
+      // strong color match
+      if (colorBucket(cand.color) === baseColor) s += 24;
+
+      // fabric match mainly for clothing + dupatta
+      if (role === 'bottom' || role === 'dupatta') {
+        if (fabricBucket(cand.fabric) === baseFabric) s += 14;
+      }
+
+      // in stock + popularity
+      if (cand.inStock) s += 8;
+      s += Math.min(10, safeNum(cand.popularity, 0) / 10);
+
+      return s;
+    };
+
+    const pick = (pool, role, limit) =>
+      pool
+        .map((p) => ({ p, s: scoreRole(p, role) }))
+        .sort((a, b) => b.s - a.s)
+        .map((x) => x.p)
+        .slice(0, limit);
+
+    // decide need based on pieces content
+    const pc = pieceCount(base);
+    const baseHasDupatta = hasDupattaInText(base);
+    const baseHasBottom = hasBottomInText(base);
+
+    // default needs for women clothing:
+    let needBottom = false;
+    let needDupatta = false;
+
+    // 1-piece shirt/kurti/top => bottom + dupatta
+    if (pc === 1 || (pc === 0 && isTopOnly(base))) {
+      needBottom = true;
+      needDupatta = true;
+    }
+
+    // 2-piece rules
+    if (pc === 2) {
+      // shirt + dupatta => bottom
+      if (baseHasDupatta && !baseHasBottom) needBottom = true;
+      // shirt + trouser => dupatta
+      if (baseHasBottom && !baseHasDupatta) needDupatta = true;
+
+      // if unclear, fall back to top-only heuristic
+      if (!baseHasBottom && !baseHasDupatta && isTopOnly(base)) {
+        needBottom = true;
+        needDupatta = true;
+      }
+    }
+
+    // 3-piece => mostly accessories
+    // also if base itself is shawl/jewellery etc:
+    if (isAccessory(base)) {
+      // if shawl, suggest top + bottom
+      if (isShawl(base)) {
         const tops = womenClothes.filter((p) => isTopOnly(p));
         const bottoms = womenClothes.filter((p) => isBottom(p));
-        const pick = uniqueById([
-          ...bestFromPool(product, tops, 2),
-          ...bestFromPool(product, bottoms, 2),
-        ]);
-        return pick.slice(0, 4);
+        return uniqueById([
+          ...pick(tops, 'top', 2),
+          ...pick(bottoms, 'bottom', 2),
+        ]).slice(0, 4);
       }
-      return [];
+      // other accessories: show nothing or only matching jewellery/hair
+      const res = uniqueById([
+        ...pick(jewelleryPool, 'jewellery', 2),
+        ...pick(hairPool, 'hair', 2),
+      ]).slice(0, 4);
+      return res;
     }
 
-    // B) men => bottom + watch
-    if (isMen(product)) {
+    // men rules
+    if (isMen(base)) {
       const bottoms = menClothes.filter((p) => isBottom(p));
-      const pick = uniqueById([
-        ...bestFromPool(product, bottoms, 3),
-        ...bestFromPool(product, watches, 1),
-      ]);
-      return pick.slice(0, 4);
+      return uniqueById([
+        ...pick(bottoms, 'bottom', 3),
+        ...pick(watchesPool, 'watch', 1),
+      ]).slice(0, 4);
     }
 
-    // C) women clothing
-    const topOnly = isTopOnly(product);
-    const bottoms = womenClothes.filter((p) => isBottom(p));
+    // women clothing result
+    let result = [];
 
-    let pick = [];
-    if (topOnly) {
-      pick = uniqueById([
-        ...bestFromPool(product, bottoms, 1),
-        ...bestFromPool(product, shawls, 1),
-        ...bestFromPool(product, jewellery, 1),
-        ...bestFromPool(product, footwear, 1),
-        ...bestFromPool(product, bags, 1),
-      ]);
-    } else {
-      pick = uniqueById([
-        ...bestFromPool(product, jewellery, 1),
-        ...bestFromPool(product, footwear, 1),
-        ...bestFromPool(product, bags, 1),
-        ...bestFromPool(product, shawls, 1),
-      ]);
-    }
+    if (needBottom) result.push(...pick(bottomPoolWomen, 'bottom', 2));
+    if (needDupatta) result.push(...pick(shawlPool, 'dupatta', 1));
 
-    return pick.slice(0, 4);
+    // always try jewellery match
+    result.push(...pick(jewelleryPool, 'jewellery', 1));
+
+    // if still less than 4 add hair
+    if (result.length < 4) result.push(...pick(hairPool, 'hair', 1));
+
+    return uniqueById(result).slice(0, 4);
   }, [allProducts, product]);
 
   function openComparePage() {
@@ -323,35 +515,95 @@ export default function ProductDetail() {
     navigate('/compare', { state: { baseProduct: product } });
   }
 
-  // ✅ AUTH CHECK
-  const { user } = useAuth();
-
-  function handleAddToCart() {
+  // ✅ pending helper
+  const goLoginWithPending = (type, safeQty) => {
     if (!product) return;
-
-    // ✅ Enforce Signup
-    if (!user) {
-      // Optional: Store current path to redirect back after login?
-      // For now, simple redirect to signup
-      navigate('/signup');
-      return;
-    }
 
     if (isReadyToWear && !selectedSize) {
       alert('Please select a size first.');
       return;
     }
 
+    const snapshot = {
+      id: String(product.id),
+      title: productName,
+      name: productName,
+      brand: product.brand || '',
+      image: product.image || allImages[0] || '',
+      price: safeNum(product.price, 0),
+      salePercent: safeNum(product.salePercent, 0),
+      originalPrice: safeNum(product.originalPrice || product.price, 0),
+
+      stockQuantity: Math.max(0, safeNum(product?.stockQuantity, 0)),
+      inStock:
+        product?.inStock !== false &&
+        Math.max(0, safeNum(product?.stockQuantity, 0)) > 0,
+    };
+
+    const redirectBack =
+      type === 'ADD_TO_CART'
+        ? '/cart'
+        : type === 'ADD_TO_WISHLIST'
+          ? '/wishlist'
+          : '/';
+
+    if (type === 'ADD_TO_CART') {
+      pushPendingAction({
+        type: 'ADD_TO_CART',
+        productId: String(product.id),
+        qty: Number(safeQty || 1),
+        size: isReadyToWear ? selectedSize || null : null,
+        redirectBack,
+        snapshot,
+      });
+    }
+
+    if (type === 'ADD_TO_WISHLIST') {
+      pushPendingAction({
+        type: 'ADD_TO_WISHLIST',
+        productId: String(product.id),
+        size: isReadyToWear ? selectedSize || null : null,
+        redirectBack,
+        snapshot,
+      });
+    }
+
+    navigate('/login', { state: { pulse: true, from: location?.pathname } });
+  };
+
+  function handleAddToCart() {
+    if (!product) return;
+
+    const mq = Math.max(0, safeNum(product?.stockQuantity, 0));
+    const out = product?.inStock === false || mq <= 0;
+    if (out) return;
+
+    const safeQty = Math.min(Math.max(1, safeNum(qty, 1)), mq);
+
+    if (isReadyToWear && !selectedSize) {
+      alert('Please select a size first.');
+      return;
+    }
+
+    if (!user) {
+      setQty(safeQty);
+      goLoginWithPending('ADD_TO_CART', safeQty);
+      return;
+    }
+
     addToCart({
-      id: product.id,
+      id: String(product.id),
       name: productName,
       brand: product.brand,
       image: product.image || allImages[0] || '',
-      price: product.price,
-      salePercent: product.salePercent || 0,
-      originalPrice: product.originalPrice || product.price,
-      qty,
+      price: safeNum(product.price, 0),
+      salePercent: safeNum(product.salePercent, 0),
+      originalPrice: safeNum(product.originalPrice || product.price, 0),
+      qty: safeQty,
       size: isReadyToWear ? selectedSize : null,
+
+      stockQuantity: mq,
+      inStock: true,
     });
 
     navigate('/cart');
@@ -360,13 +612,30 @@ export default function ProductDetail() {
   function handleAddToWishlist() {
     if (!product) return;
 
+    if (isReadyToWear && !selectedSize) {
+      alert('Please select a size first.');
+      return;
+    }
+
+    if (!user) {
+      goLoginWithPending('ADD_TO_WISHLIST', 1);
+      return;
+    }
+
     addToWishlist({
-      id: product.id,
+      id: String(product.id),
       name: productName,
       brand: product.brand,
       image: product.image || allImages[0] || '',
-      price: product.price,
+      price: safeNum(product.price, 0),
+      salePercent: safeNum(product.salePercent, 0),
+      originalPrice: safeNum(product.originalPrice || product.price, 0),
       size: isReadyToWear ? selectedSize || null : null,
+
+      stockQuantity: Math.max(0, safeNum(product?.stockQuantity, 0)),
+      inStock:
+        product?.inStock !== false &&
+        Math.max(0, safeNum(product?.stockQuantity, 0)) > 0,
     });
 
     navigate('/wishlist');
@@ -421,17 +690,20 @@ export default function ProductDetail() {
                   PKR {original.toLocaleString()}
                 </span>
               )}
-
               <span className="pd-new-price">PKR {price.toLocaleString()}</span>
-
               {hasOriginal && discountPercent > 0 && (
                 <span className="pd-sale-badge">{discountPercent}% OFF</span>
               )}
             </div>
           </div>
 
-          <div className={`pd-stock-pill ${product.inStock ? 'in' : 'out'}`}>
-            {product.inStock ? 'In Stock' : 'Out of Stock'}
+          <div className={`pd-stock-pill ${!isOut ? 'in' : 'out'}`}>
+            {!isOut ? 'In Stock' : 'Out of Stock'}
+            {!isOut && maxQty ? (
+              <span style={{ marginLeft: 10, opacity: 0.8 }}>
+                (Available: {maxQty})
+              </span>
+            ) : null}
           </div>
 
           <p className="pd-desc">{productDescription}</p>
@@ -447,36 +719,34 @@ export default function ProductDetail() {
                 {selectedSize ? `• Selected: ${selectedSize}` : ''}
               </button>
 
-
               <div className="pd-size-pills">
                 {SIZE_OPTIONS.map((s) => {
-                  // Only show sizes if they are included in product.size (comma separated)
-                  // If product.size is missing/empty, show ALL or NONE? 
-                  // Let's assume if size is saved it limits choices. If undefined, maybe show all (legacy support).
-                  // But for new products, size IS defined.
-
-                  // Clean up product sizes
                   const availableSizes = product.size
-                    ? product.size.split(',').map(sz => sz.trim().toUpperCase())
+                    ? String(product.size)
+                        .split(',')
+                        .map((sz) => sz.trim().toUpperCase())
                     : [];
 
-                  // If product.size is empty string/null, fallback:
-                  // 1. If 'isReadyToWear' is true, usually implying sizes exist. 
-                  // Let's show pill DISABLED if not in list, or just HIDE it.
-                  // User said "show availability", so showing all but disabling unavailable is often better UX.
-                  // Or just showing meaningful ones. Let's SHOW ALL but DISABLE unavailable ones.
-
-                  const isAvailable = availableSizes.length === 0 || availableSizes.includes(s);
-                  // Note: availableSizes.length === 0 condition supports legacy items where size might be null but we want to allow selection? 
-                  // Actually, strict mode: if sizes are defined, respect them.
+                  const isAvailable =
+                    availableSizes.length === 0 || availableSizes.includes(s);
 
                   return (
                     <button
                       key={s}
                       type="button"
                       disabled={!isAvailable}
-                      className={`pd-size-pill ${selectedSize === s ? 'active' : ''} ${!isAvailable ? 'disabled' : ''}`}
-                      style={!isAvailable ? { opacity: 0.5, cursor: 'not-allowed', textDecoration: 'line-through' } : {}}
+                      className={`pd-size-pill ${
+                        selectedSize === s ? 'active' : ''
+                      } ${!isAvailable ? 'disabled' : ''}`}
+                      style={
+                        !isAvailable
+                          ? {
+                              opacity: 0.5,
+                              cursor: 'not-allowed',
+                              textDecoration: 'line-through',
+                            }
+                          : {}
+                      }
                       onClick={() => isAvailable && setSelectedSize(s)}
                     >
                       {s}
@@ -487,32 +757,58 @@ export default function ProductDetail() {
             </>
           )}
 
+          {/* ✅ Qty + Add */}
           <div className="pd-qty-row">
             <button
               className="qty-btn"
-              onClick={() => qty > 1 && setQty(qty - 1)}
+              onClick={() => setQty((q) => Math.max(1, q - 1))}
+              disabled={isOut || qty <= 1}
+              title={isOut ? 'Out of stock' : ''}
             >
               −
             </button>
+
             <span className="qty-value">{qty}</span>
-            <button className="qty-btn" onClick={() => setQty(qty + 1)}>
+
+            <button
+              className="qty-btn"
+              onClick={() => setQty((q) => Math.min(maxQty || 1, q + 1))}
+              disabled={isOut || qty >= maxQty}
+              title={qty >= maxQty ? `Max ${maxQty} available` : ''}
+            >
               +
             </button>
 
-            <button
-              className="add-bag"
-              onClick={handleAddToCart}
-              disabled={!product.inStock || (isReadyToWear && !selectedSize)}
-              title={isReadyToWear && !selectedSize ? 'Select size first' : ''}
-            >
-              Add to Bag
-            </button>
+            {!isOut ? (
+              <button
+                className="add-bag"
+                onClick={handleAddToCart}
+                disabled={isReadyToWear && !selectedSize}
+                title={
+                  isReadyToWear && !selectedSize ? 'Select size first' : ''
+                }
+              >
+                Add to Bag {maxQty ? `(Max ${maxQty})` : ''}
+              </button>
+            ) : (
+              <button
+                className="add-bag"
+                type="button"
+                disabled
+                title="Out of stock"
+              >
+                Out of Stock
+              </button>
+            )}
           </div>
 
           <div className="pd-action-row">
             <button
               className="pd-action-btn pd-action-wishlist"
               onClick={handleAddToWishlist}
+              disabled={isOut}
+              title={isOut ? 'Out of stock' : 'Wishlist'}
+              style={isOut ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
               <Heart size={16} />
               <span>Wishlist</span>
@@ -527,6 +823,7 @@ export default function ProductDetail() {
             </button>
           </div>
 
+          {/* Accordion */}
           <div className="pd-details-box">
             <div className="pd-accordion">
               <div className="pd-accordion-item">
@@ -537,8 +834,9 @@ export default function ProductDetail() {
                   <span>Product Description</span>
                   <ChevronDown
                     size={18}
-                    className={`pd-accordion-icon ${openSection === 'details' ? 'open' : ''
-                      }`}
+                    className={`pd-accordion-icon ${
+                      openSection === 'details' ? 'open' : ''
+                    }`}
                   />
                 </button>
 
@@ -573,8 +871,9 @@ export default function ProductDetail() {
                               <Star
                                 key={n}
                                 size={16}
-                                className={`pd-star ${avgRating >= n ? 'filled' : ''
-                                  }`}
+                                className={`pd-star ${
+                                  avgRating >= n ? 'filled' : ''
+                                }`}
                               />
                             ))}
                           </span>
@@ -595,8 +894,9 @@ export default function ProductDetail() {
                     </span>
                     <ChevronDown
                       size={18}
-                      className={`pd-accordion-icon ${openSection === 'reviews' ? 'open' : ''
-                        }`}
+                      className={`pd-accordion-icon ${
+                        openSection === 'reviews' ? 'open' : ''
+                      }`}
                     />
                   </div>
                 </button>
@@ -618,8 +918,9 @@ export default function ProductDetail() {
                                   <Star
                                     key={n}
                                     size={14}
-                                    className={`pd-star-sm ${Number(r.rating || 0) >= n ? 'filled' : ''
-                                      }`}
+                                    className={`pd-star-sm ${
+                                      safeNum(r.rating, 0) >= n ? 'filled' : ''
+                                    }`}
                                   />
                                 ))}
                               </span>
@@ -656,8 +957,9 @@ export default function ProductDetail() {
                               <button
                                 key={n}
                                 type="button"
-                                className={`pd-star-btn ${reviewRating >= n ? 'active' : ''
-                                  }`}
+                                className={`pd-star-btn ${
+                                  reviewRating >= n ? 'active' : ''
+                                }`}
                                 onClick={() => setReviewRating(n)}
                               >
                                 <Star size={18} />
@@ -699,7 +1001,6 @@ export default function ProductDetail() {
         <section className="pd-section">
           <h3 className="pd-section-title">Complete the look</h3>
 
-          {/* ✅ if empty => hide message */}
           {completeTheLook.length === 0 ? (
             <p className="pd-empty-text">
               No matching items yet to complete this look.
@@ -724,7 +1025,7 @@ export default function ProductDetail() {
                     <p className="pd-related-brand">{item.brand}</p>
                     <p className="pd-related-name">{item.name || item.title}</p>
                     <p className="pd-related-price">
-                      PKR {Number(item.price).toLocaleString()}
+                      PKR {safeNum(item.price, 0).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -754,7 +1055,7 @@ export default function ProductDetail() {
                   <p className="pd-related-brand">{item.brand}</p>
                   <p className="pd-related-name">{item.name || item.title}</p>
                   <p className="pd-related-price">
-                    PKR {Number(item.price).toLocaleString()}
+                    PKR {safeNum(item.price, 0).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -803,8 +1104,9 @@ export default function ProductDetail() {
                 ].map((row) => (
                   <tr
                     key={row.s}
-                    className={`pd-size-row-click ${selectedSize === row.s ? 'active' : ''
-                      }`}
+                    className={`pd-size-row-click ${
+                      selectedSize === row.s ? 'active' : ''
+                    }`}
                     onClick={() => {
                       setSelectedSize(row.s);
                       setShowSizeChart(false);

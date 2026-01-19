@@ -44,9 +44,7 @@ export function WishlistProvider({ children }) {
   }, [storageKey]);
 
   // ✅ guests can't keep wishlist
-  useEffect(() => {
-    if (!user) setWishlist([]);
-  }, [user]);
+  useEffect(() => {}, [user]);
 
   // ✅ save only when user is logged in
   useEffect(() => {

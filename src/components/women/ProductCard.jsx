@@ -1,10 +1,15 @@
-// ✅ src/components/women/ProductCard.jsx
+// ✅ src/components/women/ProductCard.jsx (UPDATED: stockQuantity + inStock passed)
+// - guest snapshot now includes stockQuantity + inStock
+// - logged-in addToCart payload includes stockQuantity + inStock
+// - wishlist payload also includes stockQuantity (optional) + inStock (already)
+
 import React, { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
 import { useCart } from '../../context/CartContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { pushPendingAction } from '../../utils/pendingActions';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 
 import '../SharedCard.css';
@@ -38,7 +43,10 @@ export default function ProductCard({ product }) {
 
   const title = product?.title || product?.name || 'Product';
 
-  const isOut = product?.inStock === false;
+  // ✅ stock helpers
+  const stockQty = Math.max(0, Number(product?.stockQuantity || 0));
+  const isOut = product?.inStock === false || stockQty <= 0;
+
   const hasSale = !isOut && Number(product?.salePercent || 0) > 0;
 
   const openDetail = () => {
@@ -48,18 +56,47 @@ export default function ProductCard({ product }) {
       label: getFromLabel(location.pathname),
     };
 
-    // ✅ store for refresh
     try {
       sessionStorage.setItem('vv_last_from', JSON.stringify(from));
     } catch {}
 
-    // ✅ send state for breadcrumbs
     navigate(`/product/${product.id}`, { state: { from } });
   };
 
   const handleWishlist = (e) => {
     e.stopPropagation();
 
+    // ✅ Not logged in => pending + login
+    if (!user) {
+      const snapshot = {
+        id: String(product.id),
+        title,
+        name: title,
+        brand: product.brand || '',
+        image: coverImg || '',
+        price: Number(product.price || 0),
+        salePercent: Number(product.salePercent || 0),
+        originalPrice: Number(product.originalPrice || product.price || 0),
+        size: product.size || null,
+
+        // ✅ NEW
+        stockQuantity: stockQty,
+        inStock: !isOut,
+      };
+
+      pushPendingAction({
+        type: 'ADD_TO_WISHLIST',
+        productId: String(product.id),
+        size: snapshot.size || null,
+        redirectBack: '/wishlist',
+        snapshot,
+      });
+
+      navigate('/login', { state: { pulse: true } });
+      return;
+    }
+
+    // ✅ Logged in => wishlist
     addToWishlist({
       id: product.id,
       name: title,
@@ -69,9 +106,16 @@ export default function ProductCard({ product }) {
       price: Number(product.price || 0),
       salePercent: Number(product.salePercent || 0),
       originalPrice: Number(product.originalPrice || product.price || 0),
+
+      // ✅ keep
       inStock: !isOut,
       size: product.size || null,
+
+      // ✅ optional but helpful
+      stockQuantity: stockQty,
     });
+
+    navigate('/wishlist');
   };
 
   const handleAddToCart = (e) => {
@@ -79,11 +123,38 @@ export default function ProductCard({ product }) {
 
     if (isOut) return;
 
+    // ✅ Not logged in => pending + login
     if (!user) {
-      navigate('/signup');
+      const snapshot = {
+        id: String(product.id),
+        title,
+        name: title,
+        brand: product.brand || '',
+        image: coverImg || '',
+        price: Number(product.price || 0),
+        salePercent: Number(product.salePercent || 0),
+        originalPrice: Number(product.originalPrice || product.price || 0),
+        size: product.size || null,
+
+        // ✅ NEW
+        stockQuantity: stockQty,
+        inStock: !isOut,
+      };
+
+      pushPendingAction({
+        type: 'ADD_TO_CART',
+        productId: String(product.id),
+        qty: 1,
+        size: snapshot.size || null,
+        redirectBack: '/cart',
+        snapshot,
+      });
+
+      navigate('/login', { state: { pulse: true } });
       return;
     }
 
+    // ✅ Logged in => cart
     addToCart({
       id: product.id,
       name: title,
@@ -92,6 +163,12 @@ export default function ProductCard({ product }) {
       price: Number(product.price || 0),
       salePercent: Number(product.salePercent || 0),
       originalPrice: Number(product.originalPrice || product.price || 0),
+      qty: 1,
+      size: product.size || null,
+
+      // ✅ NEW (CartContext cap relies on this)
+      stockQuantity: stockQty,
+      inStock: !isOut,
     });
 
     navigate('/cart');

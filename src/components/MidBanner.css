@@ -1,15 +1,15 @@
+/* =========================
+   HERO BANNER BASE
+   ========================= */
 .hero-banner {
   width: 100%;
   height: 350px;
-
-  background-image: url('./images/midbanner.png'); /* <- replace with your image */
+  background-image: url('./images/midbanner.png');
   background-size: cover;
-  background-position: center;
-
+  background-position: top center;
   display: flex;
-  justify-content: flex-end; /* text goes right side */
+  justify-content: flex-end;
   align-items: center;
-  background-position: top;
   padding-right: 120px;
   box-sizing: border-box;
   position: relative;
@@ -19,10 +19,10 @@
 /* CONTENT */
 .hero-content {
   text-align: left;
-  color: black;
+  color: #000;
 }
 
-/* MARIA.B */
+/* BRAND */
 .hero-subtitle {
   font-size: 28px;
   font-weight: 500;
@@ -30,27 +30,27 @@
   margin: 0;
 }
 
-/* LUXE */
+/* TITLE */
 .hero-title {
   font-size: 92px;
   font-weight: 700;
   margin: 10px 0 0;
 }
 
-/* UNSTITCHED WINTER */
+/* TAGLINE */
 .hero-winter {
   font-size: 26px;
   font-weight: 500;
   margin-top: 10px;
 }
 
-/* SHOP BUTTON */
+/* BUTTON */
 .hero-btn {
   margin-top: 24px;
   padding: 12px 28px;
   border-radius: 30px;
-  border: 2px solid black;
-  background: white;
+  border: 2px solid #000;
+  background: #fff;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -58,28 +58,89 @@
 }
 
 .hero-btn:hover {
-  background: black;
-  color: white;
+  background: #000;
+  color: #fff;
 }
 
-/* ------------- MOBILE RESPONSIVE ------------- */
-@media (max-width: 768px) {
+/* =========================
+   TABLET
+   ========================= */
+@media (max-width: 992px) {
   .hero-banner {
-    height: 380px;
-    justify-content: center;
-    padding-right: 0;
-    background-position: top;
+    padding-right: 50px;
+    height: 330px;
   }
 
   .hero-title {
-    font-size: 58px;
-  }
-
-  .hero-winter {
-    font-size: 18px;
+    font-size: 72px;
   }
 
   .hero-subtitle {
-    font-size: 20px;
+    font-size: 24px;
+  }
+
+  .hero-winter {
+    font-size: 22px;
+  }
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+@media (max-width: 600px) {
+  .hero-banner {
+    height: 300px;
+    justify-content: center;
+    padding-right: 0;
+    background-position: center top;
+  }
+
+  .hero-content {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.65); /* text readable */
+    padding: 18px 16px;
+    border-radius: 12px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+
+  .hero-title {
+    font-size: 42px;
+    margin-top: 6px;
+  }
+
+  .hero-winter {
+    font-size: 16px;
+    margin-top: 6px;
+  }
+
+  .hero-btn {
+    margin-top: 16px;
+    padding: 10px 22px;
+    font-size: 14px;
+  }
+}
+
+/* =========================
+   VERY SMALL PHONES
+   ========================= */
+@media (max-width: 380px) {
+  .hero-banner {
+    height: 280px;
+  }
+
+  .hero-title {
+    font-size: 36px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+  }
+
+  .hero-winter {
+    font-size: 14px;
   }
 }

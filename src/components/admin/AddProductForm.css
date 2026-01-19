@@ -324,3 +324,67 @@
 .apf-clear:hover {
   background: rgba(0, 0, 0, 0.75);
 }
+/* ✅ FULL SCREEN OVERLAY (FIX) */
+.apf-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 18px;
+  overflow-y: auto; /* ✅ overlay scroll */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ✅ CARD should not go out of screen */
+.apf-card {
+  background: #fff;
+  border-radius: 16px;
+
+  width: min(980px, 96vw);
+  margin: 0 auto;
+
+  border: 1px solid #eee;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+
+  max-height: calc(100vh - 36px); /* ✅ fits screen */
+  display: flex;
+  flex-direction: column; /* ✅ header fixed, form scroll */
+}
+
+/* ✅ Header stays visible */
+.apf-head {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid #eee;
+  background: #fbfbfb;
+}
+
+/* ✅ Form area scroll inside card */
+.apf-form {
+  padding: 18px;
+  overflow-y: auto; /* ✅ internal scroll */
+}
+
+/* ✅ Better mobile padding */
+@media (max-width: 720px) {
+  .apf-wrap {
+    padding: 10px;
+  }
+  .apf-card {
+    width: 100%;
+    max-height: calc(100vh - 20px);
+  }
+}

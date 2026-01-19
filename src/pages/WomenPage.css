@@ -1060,3 +1060,472 @@
   width: 18px !important;
   height: 18px !important;
 }
+
+/* =========================================
+   ✅ WOMEN PAGE – MOBILE FIX PACK
+   Paste at END of WomenPage.css
+   ========================================= */
+
+/* ---------- Global mobile spacing ---------- */
+@media (max-width: 900px) {
+  .women-page {
+    background: #fafafa;
+  }
+
+  /* banner height adjust */
+  .women-banner {
+    height: 260px;
+  }
+
+  .women-banner-img {
+    object-position: top;
+  }
+
+  /* main layout single column */
+  .women-main {
+    flex-direction: column;
+    padding: 12px 12px 30px;
+    gap: 14px;
+  }
+
+  /* sidebar full width */
+  .filters-sidebar {
+    width: 100% !important;
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .filter-box {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  /* product section full width */
+  .women-products {
+    width: 100%;
+  }
+
+  /* top row stack nicely */
+  .products-top-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .grid-icons {
+    gap: 10px;
+    align-self: flex-end;
+  }
+
+  .grid-icons span {
+    font-size: 22px;
+    width: 24px;
+  }
+
+  .products-count {
+    font-size: 0.85rem;
+  }
+
+  .brand-count-banner {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+}
+
+/* ---------- Mobile (phones) ---------- */
+@media (max-width: 600px) {
+  /* Banner */
+  .women-banner {
+    height: 220px;
+  }
+
+  /* Women root type header circles */
+  .women-type-header-circles {
+    padding: 14px 10px 10px;
+    gap: 14px;
+  }
+
+  .w-type-img {
+    width: 62px;
+    height: 62px;
+  }
+
+  .w-type-label {
+    font-size: 0.7rem;
+  }
+
+  /* Unstitched small circles row */
+  .u-type-wrapper-small {
+    padding: 12px 0 6px;
+  }
+
+  .u-type-title-small {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .u-type-circles-row-small {
+    gap: 14px;
+    padding: 0 10px;
+  }
+
+  .u-type-img-circle-small {
+    width: 64px;
+    height: 64px;
+  }
+
+  .u-type-label-small {
+    font-size: 11px;
+  }
+
+  /* Pills */
+  .u-type-pills-row-small {
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .u-type-pill-small {
+    padding: 7px 12px;
+    font-size: 11px;
+  }
+
+  /* Filters inside sidebar */
+  .filter-box h3 {
+    font-size: 0.95rem;
+  }
+
+  .filter-item {
+    font-size: 0.88rem;
+  }
+
+  .brand-list-filter {
+    max-height: 210px;
+  }
+
+  .brand-logo-filter {
+    width: 22px;
+    height: 22px;
+    padding: 2px;
+    border-radius: 6px;
+  }
+
+  /* Color circles smaller */
+  .color-circle {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Product grids on mobile: default 2 columns */
+  .products-grid,
+  .products-grid-two,
+  .products-grid-four,
+  .products-grid-six {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  /* Product card image height smaller (so scrolling easy) */
+  .product-image {
+    height: 240px !important;
+  }
+
+  /* grid-two special (large) — make it reasonable on phone */
+  .products-grid-two .product-image,
+  .products-grid-two .shared-card-image {
+    height: 320px !important;
+  }
+
+  .product-title {
+    font-size: 0.88rem;
+  }
+
+  .product-meta {
+    font-size: 0.82rem;
+  }
+
+  /* Cart icon smaller */
+  .product-cart-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .product-cart-icon-img {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* No results */
+  .no-results {
+    padding: 26px;
+    border-radius: 12px;
+  }
+}
+
+/* ---------- Very small phones (1 column for readability) ---------- */
+@media (max-width: 420px) {
+  .products-grid,
+  .products-grid-two,
+  .products-grid-four,
+  .products-grid-six {
+    grid-template-columns: 1fr !important;
+  }
+
+  .product-image {
+    height: 320px !important;
+  }
+}
+
+/* ✅ MOBILE: Sidebar always visible + not hidden */
+@media (max-width: 800px) {
+  .women-main {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .filters-sidebar {
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    z-index: 2 !important;
+    order: 2;
+  }
+
+  .women-products {
+    order: 1;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* =========================================
+   ✅ FINAL MOBILE FIX (Sidebar + Grid)
+   Paste at VERY END of WomenPage.css
+   ========================================= */
+
+/* ✅ Make sure nothing clips sidebar */
+.women-page,
+.women-main,
+.women-products {
+  overflow: visible !important;
+}
+
+/* ✅ MOBILE layout */
+@media (max-width: 900px) {
+  .women-main {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    padding: 12px !important;
+  }
+
+  /* ✅ Sidebar MUST show */
+  .filters-sidebar {
+    display: block !important;
+    width: 100% !important;
+    order: 2 !important;
+    position: relative !important;
+    z-index: 5 !important;
+  }
+
+  .women-products {
+    width: 100% !important;
+    order: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+}
+
+/* ✅ MOBILE grids: ONLY 2 or 3 columns */
+@media (max-width: 600px) {
+  /* default gap smaller */
+  .products-grid {
+    gap: 12px !important;
+  }
+
+  /* ✅ gridType = two => 2 columns */
+  .products-grid-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* ✅ gridType = four => 2 columns (same) */
+  .products-grid-four {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* ✅ gridType = six => 3 columns */
+  .products-grid-six {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  /* ✅ image heights for mobile */
+  .products-grid-two .product-image {
+    height: 300px !important;
+  }
+
+  .products-grid-four .product-image {
+    height: 240px !important;
+  }
+
+  .products-grid-six .product-image {
+    height: 150px !important;
+  }
+}
+
+/* ✅ super small phones: 2 columns still (readable) */
+@media (max-width: 380px) {
+  .products-grid-two,
+  .products-grid-four {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .products-grid-six {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .products-grid-six .product-image {
+    height: 135px !important;
+  }
+}
+/* =========================================
+   ✅ MOBILE FILTER DRAWER (Women/RTW/Accessories)
+   Paste at END of WomenPage.css
+   ========================================= */
+
+/* show filter button only on mobile */
+.mobile-filter-row {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .mobile-filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 8px 0 12px;
+  }
+
+  .mobile-filter-btn {
+    border: 1px solid #111;
+    background: #111;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+  }
+
+  .mobile-filter-btn:active {
+    transform: scale(0.98);
+  }
+}
+
+/* overlay */
+.mobile-filter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+.mobile-filter-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* drawer */
+.mobile-filter-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: min(86vw, 360px);
+  height: 100vh;
+  background: #fff;
+  z-index: 9999;
+  transform: translateX(-105%);
+  transition: transform 0.22s ease;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.mobile-filter-drawer.open {
+  transform: translateX(0);
+}
+
+/* drawer header */
+.mobile-filter-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 12px;
+}
+
+.mobile-filter-drawer-title {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mobile-filter-close {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+/* ✅ Desktop pe sidebar normal rahe */
+@media (max-width: 800px) {
+  /* mobile pe normal sidebar hide (drawer use hoga) */
+  .women-main > .filters-sidebar {
+    display: none !important;
+  }
+}
+
+/* =========================================
+   ✅ GRID 3 SUPPORT
+   ========================================= */
+.products-grid-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* Mobile grid behavior: ONLY 2 or 3 */
+@media (max-width: 600px) {
+  .products-grid-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .products-grid-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  /* mobile image heights */
+  .products-grid-two .product-image {
+    height: 300px !important;
+  }
+  .products-grid-three .product-image {
+    height: 160px !important;
+  }
+}
+
+/* very small */
+@media (max-width: 380px) {
+  .products-grid-three .product-image {
+    height: 145px !important;
+  }
+}

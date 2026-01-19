@@ -104,14 +104,14 @@ export default function CheckoutPage() {
               to_name: formData.fullName,
               to_email: formData.email,
               total: totalAmount,
-              message: "Your order has been booked successfully!",
+              message: 'Your order has been booked successfully!',
             },
             PUBLIC_KEY
           );
-          console.log("Email sent successfully");
+          console.log('Email sent successfully');
         }
       } catch (emailErr) {
-        console.error("Failed to send email:", emailErr);
+        console.error('Failed to send email:', emailErr);
         // Don't block the UI flow if email fails
       }
       // ----------------------------
@@ -231,7 +231,6 @@ export default function CheckoutPage() {
         {/* RIGHT: SUMMARY */}
         <div className="checkout-summary">
           <h3 className="checkout-subtitle">Order Summary</h3>
-
           <div className="checkout-items">
             {cart.map((item) => (
               <div
@@ -245,6 +244,12 @@ export default function CheckoutPage() {
 
                   <div className="checkout-item-info">
                     <p className="checkout-item-name">{item.name}</p>
+
+                    {/* ✅ Brand line */}
+                    <p className="checkout-item-brand">
+                      {item.brand ? item.brand : '—'}
+                    </p>
+
                     <small className="checkout-item-qty">
                       Qty: {item.qty}
                       {item.size ? ` • Size: ${item.size}` : ''}
@@ -274,7 +279,10 @@ export default function CheckoutPage() {
             </div>
 
             {discount > 0 && (
-              <div className="checkout-row discount-row" style={{ color: 'green' }}>
+              <div
+                className="checkout-row discount-row"
+                style={{ color: 'green' }}
+              >
                 <span>Discount</span>
                 <span>- PKR {discount.toLocaleString()}</span>
               </div>
@@ -286,13 +294,21 @@ export default function CheckoutPage() {
             </div>
 
             {/* Promo Code Input */}
-            <div className="promo-section" style={{ marginTop: '1rem', display: 'flex', gap: '10px' }}>
+            <div
+              className="promo-section"
+              style={{ marginTop: '1rem', display: 'flex', gap: '10px' }}
+            >
               <input
                 type="text"
                 placeholder="Promo Code"
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value)}
-                style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                style={{
+                  flex: 1,
+                  padding: '8px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                }}
               />
               <button
                 type="button"

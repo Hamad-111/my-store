@@ -29,8 +29,8 @@ const readyToWearProducts = [
 • SubType: Casual
 • Fabric: Lawn
 • Size: M`,
-    images: ['/images/Lawn.jfif', '/images/Lawn.jfif', '/images/Lawn.jfif'],
-    image: '/images/Lawn.jfif',
+    images: ['/images/Image1.png', '/images/Image1.png', '/images/Image1.png'],
+    image: '/images/Image1.png',
   },
   {
     id: 'rtw2',

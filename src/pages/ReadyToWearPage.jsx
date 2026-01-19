@@ -3,21 +3,22 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 
 import Banner from '../components/women/Banner';
-
 import ProductCard from '../components/women/ProductCard';
 import ReadyTypeHeader from '../components/women/ReadyTypeHeader';
 import FiltersSidebarRTW from '../components/women/FiltersSidebarRTW';
 import { useProducts } from '../context/ProductContext';
 
 import './WomenPage.css';
+
 export default function ReadyToWearPage() {
-  // ✅ hooks top
-  const { products: allProducts = [], loading } = useProducts();
+  const { products: allProducts = [], loading } = useProducts() || {};
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
 
   const urlType = (searchParams.get('type') || '').toLowerCase();
+  const urlSub = searchParams.get('sub') || '';
+
   const urlReadyType = urlType ? urlType.toUpperCase() : null;
 
   const READY_TYPES = [
@@ -34,6 +35,16 @@ export default function ReadyToWearPage() {
     { key: 'bottoms', label: 'Bottoms', img: '/images/womenbottom5.jfif' },
   ];
 
+  // ---------------- MOBILE DETECT ----------------
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 800px)');
+    const onChange = () => setIsMobile(mq.matches);
+    onChange();
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, []);
+
   // ---------- STATE ----------
   const [sorting, setSorting] = useState('popularity');
   const [delivery, setDelivery] = useState(null);
@@ -47,8 +58,26 @@ export default function ReadyToWearPage() {
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
 
+  // ✅ desktop default: four, mobile default: two
   const [gridType, setGridType] = useState('four');
   const [readySubType, setReadySubType] = useState(null);
+
+  // ✅ mobile drawer
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  // ✅ keep grid valid on screen change
+  useEffect(() => {
+    const sub = searchParams.get('sub');
+    setReadySubType(sub || null);
+    if (isMobile) {
+      // mobile only: two / three
+      if (gridType !== 'two' && gridType !== 'three') setGridType('two');
+    } else {
+      // desktop: two / four / six
+      if (gridType === 'three') setGridType('four');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile, searchParams]);
 
   // ---------- HELPERS ----------
   const resetAllFilters = () => {
@@ -65,7 +94,7 @@ export default function ReadyToWearPage() {
     setSelectedBrands([]);
 
     setReadySubType(null);
-    setGridType('four');
+    setGridType(isMobile ? 'two' : 'four');
   };
 
   // ✅ type change pe subType reset
@@ -73,7 +102,7 @@ export default function ReadyToWearPage() {
     setReadySubType(null);
   }, [urlType]);
 
-  // ✅ optional: route change pe scroll top (women jaisa)
+  // ✅ optional scroll
   const didMountRef = useRef(false);
   useEffect(() => {
     if (!didMountRef.current) {
@@ -87,7 +116,6 @@ export default function ReadyToWearPage() {
     inStockOnly,
     priceMin,
     priceMax,
-
     selectedFabric,
     selectedSizes,
     selectedColors,
@@ -98,29 +126,9 @@ export default function ReadyToWearPage() {
     urlType,
   ]);
 
-  const mapPriceRange = (label) => {
-    switch (label) {
-      case 'Below PKR 5000':
-        return [0, 5000];
-      case 'PKR 5000 - PKR 10,000':
-        return [5000, 10000];
-      case 'PKR 10,000 - PKR 15,000':
-        return [10000, 15000];
-      case 'PKR 15,000 - PKR 20,000':
-        return [15000, 20000];
-      case 'PKR 20,000 - PKR 30,000':
-        return [20000, 30000];
-      case 'Above PKR 30,000':
-        return [30000, Infinity];
-      default:
-        return [0, Infinity];
-    }
-  };
-
   const bannerKey = urlType ? `rtw-${urlType}` : 'rtw-default';
 
   const filteredProducts = useMemo(() => {
-    // ✅ ONLY READY TO WEAR
     let items = (allProducts || []).filter((p) => {
       const main = String(p.mainCategory || '')
         .toUpperCase()
@@ -130,59 +138,41 @@ export default function ReadyToWearPage() {
         .trim();
       return main === 'READY_TO_WEAR' && cat === 'READYTOWEAR';
     });
+
+    // unique by id
     items = Array.from(new Map(items.map((p) => [String(p.id), p])).values());
 
-    // ✅ main type
     if (urlReadyType) {
       items = items.filter(
         (p) => (p.rtwType || '').toUpperCase() === urlReadyType
       );
     }
 
-    // ✅ subtype (pills)
     if (readySubType) {
       items = items.filter(
         (p) => (p.rtwSubType || '').toUpperCase() === readySubType.toUpperCase()
       );
     }
 
-    // ✅ brand
-    if (selectedBrands.length > 0) {
+    if (selectedBrands.length > 0)
       items = items.filter((p) => selectedBrands.includes(p.brand));
-    }
-
-    // ✅ color
-    if (selectedColors.length > 0) {
+    if (selectedColors.length > 0)
       items = items.filter((p) => selectedColors.includes(p.color));
-    }
-
-    // ✅ fabric
-    if (selectedFabric.length > 0) {
+    if (selectedFabric.length > 0)
       items = items.filter((p) => selectedFabric.includes(p.fabric));
-    }
-
-    // ✅ size
-    if (selectedSizes.length > 0) {
+    if (selectedSizes.length > 0)
       items = items.filter((p) => selectedSizes.includes(p.size || null));
-    }
 
-    // ✅ price
     const min = priceMin !== '' ? Number(priceMin) : null;
     const max = priceMax !== '' ? Number(priceMax) : null;
 
-    if (min !== null && !Number.isNaN(min)) {
+    if (min !== null && !Number.isNaN(min))
       items = items.filter((p) => Number(p.price || 0) >= min);
-    }
-    if (max !== null && !Number.isNaN(max)) {
+    if (max !== null && !Number.isNaN(max))
       items = items.filter((p) => Number(p.price || 0) <= max);
-    }
 
-    // ✅ stock
-    if (inStockOnly) {
-      items = items.filter((p) => p.inStock);
-    }
+    if (inStockOnly) items = items.filter((p) => p.inStock);
 
-    // ✅ sort
     items.sort((a, b) => {
       if (sorting === 'lowhigh')
         return Number(a.price || 0) - Number(b.price || 0);
@@ -202,7 +192,6 @@ export default function ReadyToWearPage() {
     selectedSizes,
     priceMin,
     priceMax,
-
     inStockOnly,
     sorting,
   ]);
@@ -237,7 +226,12 @@ export default function ReadyToWearPage() {
                 className={`u-type-style-circle ${
                   urlType === t.key ? 'active' : ''
                 }`}
-                onClick={() => navigate(`/ready-to-wear?type=${t.key}`)}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.set('type', t.key);
+                  params.delete('sub'); // ✅ type change pe sub reset
+                  navigate(`/ready-to-wear?${params.toString()}`);
+                }}
               >
                 <div className="u-type-img-circle-small">
                   <img src={t.img} alt={t.label} />
@@ -254,76 +248,155 @@ export default function ReadyToWearPage() {
         <ReadyTypeHeader
           type={urlReadyType}
           activeSubType={readySubType}
-          onSubTypeChange={setReadySubType}
+          onSubTypeChange={(subKey) => {
+            setReadySubType(subKey);
+
+            const params = new URLSearchParams(searchParams.toString());
+            params.set('sub', subKey); // ✅ URL me sub set
+            navigate(`/ready-to-wear?${params.toString()}`);
+          }}
         />
       )}
 
+      {/* ✅ MOBILE FILTER DRAWER */}
+      {isMobile && (
+        <>
+          <div
+            className={`mobile-filter-overlay ${filterOpen ? 'open' : ''}`}
+            onClick={() => setFilterOpen(false)}
+          />
+          <div className={`mobile-filter-drawer ${filterOpen ? 'open' : ''}`}>
+            <div className="mobile-filter-drawer-header">
+              <div className="mobile-filter-drawer-title">Filters</div>
+              <button
+                className="mobile-filter-close"
+                onClick={() => setFilterOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <FiltersSidebarRTW
+              sorting={sorting}
+              setSorting={setSorting}
+              delivery={delivery}
+              setDelivery={setDelivery}
+              inStockOnly={inStockOnly}
+              setInStockOnly={setInStockOnly}
+              priceMin={priceMin}
+              setPriceMin={setPriceMin}
+              priceMax={priceMax}
+              setPriceMax={setPriceMax}
+              selectedFabric={selectedFabric}
+              setSelectedFabric={setSelectedFabric}
+              selectedSizes={selectedSizes}
+              setSelectedSizes={setSelectedSizes}
+              selectedColors={selectedColors}
+              setSelectedColors={setSelectedColors}
+              selectedBrands={selectedBrands}
+              setSelectedBrands={setSelectedBrands}
+              onClearFilters={resetAllFilters}
+            />
+          </div>
+        </>
+      )}
+
       <div className="women-main">
-        <FiltersSidebarRTW
-          sorting={sorting}
-          setSorting={setSorting}
-          delivery={delivery}
-          setDelivery={setDelivery}
-          inStockOnly={inStockOnly}
-          setInStockOnly={setInStockOnly}
-          priceMin={priceMin}
-          setPriceMin={setPriceMin}
-          priceMax={priceMax}
-          setPriceMax={setPriceMax}
-          selectedFabric={selectedFabric}
-          setSelectedFabric={setSelectedFabric}
-          selectedSizes={selectedSizes}
-          setSelectedSizes={setSelectedSizes}
-          selectedColors={selectedColors}
-          setSelectedColors={setSelectedColors}
-          selectedBrands={selectedBrands}
-          setSelectedBrands={setSelectedBrands}
-          // ✅ RTW is NOT unstitched
-          isUnstitchedRoute={false}
-          unstitchedType={null}
-          isUnstitchedPath={false}
-          // ✅ clear button working
-          onClearFilters={resetAllFilters}
-        />
+        {/* ✅ DESKTOP sidebar only */}
+        {!isMobile && (
+          <FiltersSidebarRTW
+            sorting={sorting}
+            setSorting={setSorting}
+            delivery={delivery}
+            setDelivery={setDelivery}
+            inStockOnly={inStockOnly}
+            setInStockOnly={setInStockOnly}
+            priceMin={priceMin}
+            setPriceMin={setPriceMin}
+            priceMax={priceMax}
+            setPriceMax={setPriceMax}
+            selectedFabric={selectedFabric}
+            setSelectedFabric={setSelectedFabric}
+            selectedSizes={selectedSizes}
+            setSelectedSizes={setSelectedSizes}
+            selectedColors={selectedColors}
+            setSelectedColors={setSelectedColors}
+            selectedBrands={selectedBrands}
+            setSelectedBrands={setSelectedBrands}
+            onClearFilters={resetAllFilters}
+          />
+        )}
 
         <section className="women-products">
-          <div className="products-top-row">
-            <div>
-              <div className="products-count">
-                Showing {filteredProducts.length} item
-                {filteredProducts.length !== 1 ? 's' : ''}
+          {/* ✅ MOBILE ROW: Filter+ + only Grid 2/3 icons */}
+          {isMobile && (
+            <div className="mobile-filter-row">
+              <button
+                className="mobile-filter-btn"
+                onClick={() => setFilterOpen(true)}
+              >
+                Filter +
+              </button>
+
+              <div className="grid-icons">
+                <span
+                  className={gridType === 'two' ? 'active' : ''}
+                  onClick={() => setGridType('two')}
+                  title="2 Columns"
+                >
+                  ▦
+                </span>
+                <span
+                  className={gridType === 'three' ? 'active' : ''}
+                  onClick={() => setGridType('three')}
+                  title="3 Columns"
+                >
+                  ▤
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* ✅ DESKTOP TOP ROW (old) */}
+          {!isMobile && (
+            <div className="products-top-row">
+              <div>
+                <div className="products-count">
+                  Showing {filteredProducts.length} item
+                  {filteredProducts.length !== 1 ? 's' : ''}
+                </div>
+
+                {activeBrand && (
+                  <div className="brand-count-banner">
+                    {filteredProducts.length} item
+                    {filteredProducts.length !== 1 ? 's' : ''} found in{' '}
+                    {activeBrand}
+                  </div>
+                )}
               </div>
 
-              {activeBrand && (
-                <div className="brand-count-banner">
-                  {filteredProducts.length} item
-                  {filteredProducts.length !== 1 ? 's' : ''} found in{' '}
-                  {activeBrand}
-                </div>
-              )}
+              <div className="grid-icons">
+                <span
+                  className={gridType === 'two' ? 'active' : ''}
+                  onClick={() => setGridType('two')}
+                >
+                  ≡
+                </span>
+                <span
+                  className={gridType === 'four' ? 'active' : ''}
+                  onClick={() => setGridType('four')}
+                >
+                  ▤
+                </span>
+                <span
+                  className={gridType === 'six' ? 'active' : ''}
+                  onClick={() => setGridType('six')}
+                >
+                  ▦
+                </span>
+              </div>
             </div>
-
-            <div className="grid-icons">
-              <span
-                className={gridType === 'two' ? 'active' : ''}
-                onClick={() => setGridType('two')}
-              >
-                ≡
-              </span>
-              <span
-                className={gridType === 'four' ? 'active' : ''}
-                onClick={() => setGridType('four')}
-              >
-                ▤
-              </span>
-              <span
-                className={gridType === 'six' ? 'active' : ''}
-                onClick={() => setGridType('six')}
-              >
-                ▦
-              </span>
-            </div>
-          </div>
+          )}
 
           {filteredProducts.length === 0 && (
             <div className="no-results">No Result Found</div>

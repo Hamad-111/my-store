@@ -54,12 +54,22 @@ export default function MenFiltersSidebar({
     }),
     []
   );
+  const showSizes = activeCategory !== 'shalwar-kameez';
 
   // ✅ Colors map
   const COLOR_MAP = useMemo(
     () => ({
-      shirts: ['Black', 'White', 'Navy', 'Grey', 'Yellow', 'Maroon'],
-      kurta: ['White', 'Beige', 'Brown', 'Grey', 'Black'],
+      shirts: [
+        'Black',
+        'White',
+        'Navy',
+        'Grey',
+        'Yellow',
+        'Maroon',
+        'Green',
+        'Blue',
+      ],
+      kurta: ['White', 'Beige', 'Brown', 'Grey', 'Black', 'Blue', 'Green'],
       'shalwar-kameez': [
         'White',
         'Cream',

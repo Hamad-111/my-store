@@ -1,4 +1,5 @@
-// src/context/ProductContext.jsx
+// ✅ src/context/ProductContext.jsx (DB + LOCAL MERGE + STOCK FIX)
+
 import React, {
   createContext,
   useContext,
@@ -9,6 +10,7 @@ import React, {
 } from 'react';
 import { supabase } from '../supabaseClient';
 
+<<<<<<< Updated upstream
 // ✅ Local data
 import womenProductsRaw from '../data/WomenProducts';
 import readyToWearProductsRaw from '../data/ReadyToWearProducts';
@@ -16,8 +18,15 @@ import accessoriesRaw from '../data/AccessoriesProducts';
 import menProductsRaw from '../data/MenProducts';
 // ✅ Toggle: for now show only local data (10/10/10). Later set false.
 const LOCAL_ONLY = false;
+=======
+// ✅ Local data imports
+import womenProducts from '../data/WomenProducts';
+import readyProducts from '../data/ReadyToWearProducts';
+import accessories from '../data/AccessoriesProducts';
+import menProducts from '../data/MenProducts';
+>>>>>>> Stashed changes
 
-const ProductContext = createContext();
+const ProductContext = createContext(null);
 
 export function useProducts() {
   return useContext(ProductContext);
@@ -28,22 +37,13 @@ function uniqueById(list) {
   return Array.from(new Map(list.map((it) => [String(it.id), it])).values());
 }
 
-// ✅ add cache bust query param
-function cacheBust(src, version) {
-  if (!src) return '';
-  const clean = String(src).trim();
-  if (!clean) return '';
-  return clean.includes('?')
-    ? `${clean}&v=${version}`
-    : `${clean}?v=${version}`;
-}
-
-// ✅ normalize DB images
+// ✅ normalize DB images (supports array or json-string)
 function normalizeDbImages(p) {
   const imgs = Array.isArray(p.images)
     ? p.images
     : typeof p.images === 'string'
       ? (() => {
+<<<<<<< Updated upstream
         try {
           const parsed = JSON.parse(p.images);
           return Array.isArray(parsed) ? parsed : [];
@@ -51,6 +51,15 @@ function normalizeDbImages(p) {
           return [];
         }
       })()
+=======
+          try {
+            const parsed = JSON.parse(p.images);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        })()
+>>>>>>> Stashed changes
       : [];
 
   const one =
@@ -71,59 +80,229 @@ function normalizeDbImages(p) {
   };
 }
 
-// ✅ normalize local product (IMPORTANT: cache bust)
-function normalizeLocalProduct(p, version) {
+/**
+ * ✅ DB STOCK NORMALIZER (IMPORTANT)
+ * Rule:
+ * Out of stock if in_stock === false OR stock_quantity <= 0
+ */
+function normalizeDbStock(p) {
+  const qty = Number(p.stock_quantity ?? p.stockQuantity ?? 0);
+  const flag = p.in_stock ?? p.inStock; // true/false/undefined
+
+  if (flag === false) {
+    return {
+      inStockFinal: false,
+      stockQuantity: Number.isFinite(qty) ? qty : 0,
+    };
+  }
+
+  const safeQty = Number.isFinite(qty) ? qty : 0;
+  const inStockFinal = safeQty > 0;
+
+  // If BOTH missing => qty becomes 0 => out (as per rule)
+  return { inStockFinal, stockQuantity: safeQty };
+}
+
+/**
+ * ✅ LOCAL STOCK NORMALIZER
+ * Local files usually don’t have stock_quantity/in_stock.
+ * So:
+ * - if inStock explicitly false => out
+ * - else if qty provided => qty>0 in
+ * - else default => IN STOCK (so local items don’t become all out)
+ */
+function normalizeLocalStock(p) {
+  const flag = p.in_stock ?? p.inStock;
+  const qtyRaw = p.stock_quantity ?? p.stockQuantity;
+
+  if (flag === false) {
+    return { inStockFinal: false, stockQuantity: Number(qtyRaw || 0) };
+  }
+
+  const qty = Number(qtyRaw);
+  if (Number.isFinite(qty)) {
+    return { inStockFinal: qty > 0, stockQuantity: qty };
+  }
+
+  // default for local
+  return { inStockFinal: true, stockQuantity: 999 };
+}
+
+// ✅ Local image normalizer (most local already has images[])
+function normalizeLocalImages(p) {
   const imgs = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
-  const one = p.image || imgs[0] || '';
+  const one = p.image || p.mainImg || p.thumbnail || p.img || '';
+
   const finalImgs = imgs.length > 0 ? imgs : one ? [one] : [];
 
   return {
+    images: finalImgs,
+    image: one || finalImgs[0] || '',
+  };
+}
+
+// ✅ DB mapper per-table so pages filters ALWAYS match
+function mapDbRowToUi(p, tableName) {
+  const imgPack = normalizeDbImages(p);
+  const { inStockFinal, stockQuantity } = normalizeDbStock(p);
+
+  const base = {
     ...p,
     id: String(p.id),
-    title: p.title || 'Untitled Product',
-    description: p.description || '',
-    details: p.details || '',
-
-    // ✅ images always with cache-bust
-    images: finalImgs.map((s) => cacheBust(s, version)),
-    image: cacheBust(one || finalImgs[0] || '', version),
-
-    mainCategory: String(p.mainCategory || '').toUpperCase(),
-    category: p.category || '',
-    subCategory: p.subCategory || '',
-
-    // ✅ MEN filter needs this
-    section: p.section || '',
+    title: p.title || p.name || 'Untitled Product',
 
     brand: p.brand || '',
     color: p.color || '',
+
+    price: Number(p.price || 0),
+    originalPrice: Number(p.original_price ?? p.originalPrice ?? 0),
+    salePercent: Number(p.sale_percent ?? p.salePercent ?? 0),
+    onSale: Boolean(p.on_sale ?? p.onSale ?? false),
+
+    // ✅ FIXED
+    inStock: inStockFinal,
+    stockQuantity,
+
+    popularity: Number(p.popularity || 0),
+    tag: p.tag || '',
+
     fabric: p.fabric || '',
     material: p.material || '',
     size: p.size || '',
 
-    price: Number(p.price || 0),
-    originalPrice: Number(p.originalPrice || 0),
-    salePercent: Number(p.salePercent || 0),
-    onSale: Boolean(p.onSale ?? false),
+    description:
+      p.description || p.short_description || p.product_description || '',
+    details: p.details || p.long_description || p.product_details || '',
 
-    inStock: Boolean(p.inStock ?? true),
+    isNew: Boolean(p.is_new ?? false),
+    isBestSeller: Boolean(p.is_best_seller ?? false),
+
+    createdAt: p.created_at || p.createdAt || '',
+
+    images: imgPack.images,
+    image: imgPack.image,
+
+    // admin/edit helpers
+    main_category: p.main_category || null,
+    sub_category: p.sub_category || null,
+    unstitched_type: p.unstitched_type || null,
+    rtw_type: p.rtw_type || null,
+    rtw_sub_type: p.rtw_sub_type || null,
+    style: p.style || null,
+    pieces: p.pieces || null,
+  };
+
+  // ✅ MEN
+  if (tableName === 'men_products') {
+    return {
+      ...base,
+      section: 'menswear',
+      mainCategory: 'MENSWEAR',
+      subCategory: String(p.sub_category || '').trim(), // KURTA / SHIRTS / SHALWAR_KAMEEZ
+      category: 'men',
+    };
+  }
+
+  // ✅ UNSTITCHED
+  if (tableName === 'unstitched_products') {
+    return {
+      ...base,
+      mainCategory: 'UNSTITCHED',
+      subCategory: 'UNSTITCHED',
+      category: 'women',
+      unstitchedType: p.unstitched_type || p.sub_category || '',
+      style: p.style || '',
+      pieces: p.pieces || '',
+    };
+  }
+
+  // ✅ READY TO WEAR
+  if (tableName === 'ready_to_wear_products') {
+    return {
+      ...base,
+      mainCategory: 'READY_TO_WEAR',
+      subCategory: 'READY_TO_WEAR',
+      category: 'READYTOWEAR',
+      rtwType: p.rtw_type || '',
+      rtwSubType: p.rtw_sub_type || p.style || '',
+    };
+  }
+
+  // ✅ ACCESSORIES
+  if (tableName === 'accessories_products') {
+    const accMain = String(p.sub_category || p.main_category || '')
+      .toUpperCase()
+      .trim();
+
+    return {
+      ...base,
+      mainCategory: accMain,
+      subCategory: String(p.sub_category || '').trim(),
+      category: 'women',
+    };
+  }
+
+  // fallback
+  return {
+    ...base,
+    mainCategory: String(p.main_category || p.mainCategory || '').toUpperCase(),
+    subCategory: p.sub_category || p.subCategory || '',
+    category: p.category || '',
+  };
+}
+
+// ✅ Local mapper (keeps your existing local fields BUT ensures basic normalization)
+function mapLocalRowToUi(p) {
+  const imgPack = normalizeLocalImages(p);
+  const { inStockFinal, stockQuantity } = normalizeLocalStock(p);
+
+  const base = {
+    ...p,
+    id: String(p.id),
+    title: p.title || p.name || 'Untitled Product',
+
+    brand: p.brand || '',
+    color: p.color || '',
+
+    price: Number(p.price || 0),
+    originalPrice: Number(p.originalPrice ?? p.original_price ?? 0),
+    salePercent: Number(p.salePercent ?? p.sale_percent ?? 0),
+    onSale: Boolean(p.onSale ?? p.on_sale ?? false),
+
+    // ✅ local stock
+    inStock: inStockFinal,
+    stockQuantity,
+
     popularity: Number(p.popularity || 0),
     tag: p.tag || '',
 
-    // ✅ flags for home sections
+    fabric: p.fabric || '',
+    material: p.material || '',
+    size: p.size || '',
+
+    description: p.description || '',
+    details: p.details || '',
+
     isNew: Boolean(p.isNew ?? false),
     isBestSeller: Boolean(p.isBestSeller ?? false),
 
-    createdAt: p.createdAt || '',
+    createdAt: p.createdAt || p.created_at || '',
 
-    // Unstitched
-    unstitchedType: p.unstitchedType || '',
-    style: p.style || '',
-    pieces: p.pieces || '',
+    images: imgPack.images,
+    image: imgPack.image,
+  };
 
-    // RTW
-    rtwType: p.rtwType || '',
-    rtwSubType: p.rtwSubType || '',
+  // If local already has correct categories, keep them
+  // (Your local data usually already has: mainCategory/subCategory/category/section etc.)
+  return {
+    ...base,
+    mainCategory: (p.mainCategory || base.mainCategory || '').toString(),
+    subCategory: (p.subCategory || base.subCategory || '').toString(),
+    category: (p.category || base.category || '').toString(),
+    section: p.section || base.section || undefined,
+    unstitchedType: p.unstitchedType || p.unstitched_type || undefined,
+    rtwType: p.rtwType || p.rtw_type || undefined,
+    rtwSubType: p.rtwSubType || p.rtw_sub_type || undefined,
   };
 }
 
@@ -133,241 +312,105 @@ export function ProductProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ✅ asset version saved in localStorage
-  const [assetVersion, setAssetVersion] = useState(() => {
-    const saved = localStorage.getItem('assetVersion');
-    return saved || String(Date.now());
-  });
-
-  const bumpAssetVersion = useCallback(() => {
-    const v = String(Date.now());
-    localStorage.setItem('assetVersion', v);
-    setAssetVersion(v);
-  }, []);
-
-  // ✅ local products (memo)
-  const localProducts = useMemo(() => {
-    const localUnstitched = (womenProductsRaw || []).map((p) =>
-      normalizeLocalProduct(p, assetVersion)
-    );
-    const localRTW = (readyToWearProductsRaw || []).map((p) =>
-      normalizeLocalProduct(p, assetVersion)
-    );
-    const localAccessories = (accessoriesRaw || []).map((p) =>
-      normalizeLocalProduct(p, assetVersion)
-    );
-    const localMen = (menProductsRaw || []).map((p) =>
-      normalizeLocalProduct(p, assetVersion)
-    );
-
-    return uniqueById([
-      ...localUnstitched,
-      ...localRTW,
-      ...localAccessories,
-      ...localMen,
-    ]);
-  }, [assetVersion]);
-
-  useEffect(() => {
-    fetchProducts();
-    fetchBrands();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetVersion]);
-
-  const fetchBrands = async () => {
+  const fetchBrands = useCallback(async () => {
     try {
       if (!supabase) return;
       const { data, error } = await supabase.from('brands').select('*');
-      if (!error && data) setBrands(data);
+      if (!error && data) setBrands(data || []);
     } catch (err) {
       console.error('Error fetching brands:', err);
     }
-  };
+  }, []);
 
-  // ✅ DB mapper per-table so your pages filters ALWAYS match
-  function mapDbRowToUi(p, tableName) {
-    const imgPack = normalizeDbImages(p);
-
-    // base
-    const base = {
-      ...p,
-      id: String(p.id),
-      title: p.title || p.name || 'Untitled Product',
-
-      brand: p.brand || '',
-      color: p.color || '',
-
-      price: Number(p.price || 0),
-      originalPrice: Number(p.original_price || p.originalPrice || 0),
-      salePercent: Number(p.sale_percent || p.salePercent || 0),
-      onSale: Boolean(p.on_sale ?? p.onSale ?? false),
-
-      inStock: Boolean(p.in_stock ?? p.inStock ?? true),
-      popularity: Number(p.popularity || 0),
-      tag: p.tag || '',
-
-      fabric: p.fabric || '',
-      material: p.material || '',
-      size: p.size || '',
-
-      description:
-        p.description || p.short_description || p.product_description || '',
-      details: p.details || p.long_description || p.product_details || '',
-
-      // ✅ flags for home sections
-      isNew: Boolean(p.is_new ?? false),
-      isBestSeller: Boolean(p.is_best_seller ?? false),
-
-      // ✅ for sorting in NewArrivals
-      createdAt: p.created_at || p.createdAt || '',
-
-      images: imgPack.images,
-      image: imgPack.image,
-
-      // keep these for admin/edit
-      main_category: p.main_category || null,
-      sub_category: p.sub_category || null,
-      unstitched_type: p.unstitched_type || null,
-      rtw_type: p.rtw_type || null,
-      rtw_sub_type: p.rtw_sub_type || null,
-      style: p.style || null,
-      pieces: p.pieces || null,
-      stock_quantity: p.stock_quantity ?? null,
-    };
-
-    // ✅ IMPORTANT: set UI keys exactly as your pages expect
-    if (tableName === 'men_products') {
-      return {
-        ...base,
-        section: 'menswear',
-        mainCategory: 'MENSWEAR',
-        subCategory: String(p.sub_category || '').trim(), // KURTA / SHIRTS etc
-        category: 'men',
-      };
-    }
-
-    if (tableName === 'unstitched_products') {
-      return {
-        ...base,
-        mainCategory: 'UNSTITCHED',
-        subCategory: 'UNSTITCHED',
-        category: 'women',
-        unstitchedType: p.unstitched_type || p.sub_category || '',
-        style: p.style || '',
-        pieces: p.pieces || '',
-      };
-    }
-
-    if (tableName === 'ready_to_wear_products') {
-      return {
-        ...base,
-        mainCategory: 'READY_TO_WEAR',
-        subCategory: 'READY_TO_WEAR',
-        category: 'women',
-        rtwType: p.rtw_type || '',
-        rtwSubType: p.rtw_sub_type || p.style || '',
-      };
-    }
-
-    if (tableName === 'accessories_products') {
-      // AccessoriesPage expects mainCategory = JEWELLRY/SHAWLS/... (not "ACCESSORIES")
-      const accMain = String(p.sub_category || p.main_category || '')
-        .toUpperCase()
-        .trim();
-
-      return {
-        ...base,
-        mainCategory: accMain, // JEWELLRY / SHAWLS / HAIR ACCESSORIES / ...
-        subCategory: String(p.sub_category || '').trim(),
-        category: 'women',
-      };
-    }
-
-    // fallback
-    return {
-      ...base,
-      mainCategory: String(
-        p.main_category || p.mainCategory || ''
-      ).toUpperCase(),
-      subCategory: p.sub_category || p.subCategory || '',
-      category: p.category || '',
-    };
-  }
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // ✅ Start with local list
-      let finalList = uniqueById([...localProducts]);
+      // ✅ 1) Local mapped (always available)
+      const localAllRaw = [
+        ...(Array.isArray(accessories) ? accessories : []),
+        ...(Array.isArray(menProducts) ? menProducts : []),
+        ...(Array.isArray(womenProducts) ? womenProducts : []),
+        ...(Array.isArray(readyProducts) ? readyProducts : []),
+      ];
+      const mappedLocal = localAllRaw.map(mapLocalRowToUi);
 
-      // ✅ IMPORTANT: for now do NOT read database products
-      if (LOCAL_ONLY) {
-        setProducts(finalList);
-        return;
+      // ✅ 2) DB mapped (if supabase available)
+      let mappedDb = [];
+      if (supabase) {
+        const [accRes, menRes, unstRes, rtwRes] = await Promise.all([
+          supabase.from('accessories_products').select('*'),
+          supabase.from('men_products').select('*'),
+          supabase.from('unstitched_products').select('*'),
+          supabase.from('ready_to_wear_products').select('*'),
+        ]);
+
+        const anyErr =
+          accRes?.error || menRes?.error || unstRes?.error || rtwRes?.error;
+
+        if (anyErr) {
+          console.warn('Some product tables failed:', anyErr);
+          setError(anyErr.message || 'Failed to load some products');
+        }
+
+        const dbAcc = (accRes?.data || []).map((x) =>
+          mapDbRowToUi(x, 'accessories_products')
+        );
+        const dbMen = (menRes?.data || []).map((x) =>
+          mapDbRowToUi(x, 'men_products')
+        );
+        const dbUn = (unstRes?.data || []).map((x) =>
+          mapDbRowToUi(x, 'unstitched_products')
+        );
+        const dbRtw = (rtwRes?.data || []).map((x) =>
+          mapDbRowToUi(x, 'ready_to_wear_products')
+        );
+
+        mappedDb = [...dbAcc, ...dbMen, ...dbUn, ...dbRtw];
       }
 
-      if (!supabase) {
-        setProducts(finalList);
-        return;
-      }
-
-      // ✅ DB: Fetch ALL tables
-      const [accRes, menRes, unstRes, rtwRes] = await Promise.all([
-        supabase.from('accessories_products').select('*'),
-        supabase.from('men_products').select('*'),
-        supabase.from('unstitched_products').select('*'),
-        supabase.from('ready_to_wear_products').select('*'),
-      ]);
-
-      const mappedAcc = (accRes?.data || []).map((p) =>
-        mapDbRowToUi(p, 'accessories_products')
-      );
-      const mappedMen = (menRes?.data || []).map((p) =>
-        mapDbRowToUi(p, 'men_products')
-      );
-      const mappedUn = (unstRes?.data || []).map((p) =>
-        mapDbRowToUi(p, 'unstitched_products')
-      );
-      const mappedRtw = (rtwRes?.data || []).map((p) =>
-        mapDbRowToUi(p, 'ready_to_wear_products')
-      );
-
-      const mappedDb = [...mappedAcc, ...mappedMen, ...mappedUn, ...mappedRtw];
-
-      // Local wins over DB if same id
-      finalList = uniqueById([...mappedDb, ...localProducts]);
-
-      setProducts(finalList);
+      /**
+       * ✅ Merge Rule:
+       * Keep FIRST by id => put DB first so it overrides local if same id exists.
+       */
+      const merged = uniqueById([...mappedDb, ...mappedLocal]);
+      setProducts(merged);
     } catch (err) {
       console.error('Error fetching products:', err?.message || err);
       setError(err?.message || 'Unknown error');
-      setProducts(uniqueById([...localProducts]));
+
+      // still show local if DB fails
+      const localAllRaw = [
+        ...(Array.isArray(accessories) ? accessories : []),
+        ...(Array.isArray(menProducts) ? menProducts : []),
+        ...(Array.isArray(womenProducts) ? womenProducts : []),
+        ...(Array.isArray(readyProducts) ? readyProducts : []),
+      ];
+      setProducts(uniqueById(localAllRaw.map(mapLocalRowToUi)));
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchBrands();
+  }, [fetchProducts, fetchBrands]);
+
+  const value = useMemo(
+    () => ({
+      products,
+      brands,
+      loading,
+      error,
+      refreshProducts: fetchProducts,
+      refreshBrands: fetchBrands,
+    }),
+    [products, brands, loading, error, fetchProducts, fetchBrands]
+  );
 
   return (
-    <ProductContext.Provider
-      value={{
-        products,
-        brands,
-        loading,
-        error,
-        refreshProducts: fetchProducts,
-        refreshBrands: fetchBrands,
-        refreshImages: bumpAssetVersion,
-        assetVersion,
-      }}
-    >
-      {children}
-    </ProductContext.Provider>
+    <ProductContext.Provider value={value}>{children}</ProductContext.Provider>
   );
 }

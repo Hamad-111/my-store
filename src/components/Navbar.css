@@ -1,64 +1,7 @@
-/* ===== GLOBAL ===== */
-/* ===== GLOBAL ===== */
-/* ===== SEARCH SUGGESTIONS ===== */
-.search-suggestions {
-  position: absolute;
-  top: 45px;
-  left: 0;
-  width: 100%;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1500;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.suggestion-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.2s;
-}
-
-.suggestion-item:last-child {
-  border-bottom: none;
-}
-
-.suggestion-item:hover {
-  background-color: #f9f9f9;
-}
-
-.suggestion-img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.suggestion-info {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.suggestion-title {
-  margin: 0;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #333;
-}
-
-.suggestion-price {
-  margin: 0;
-  font-size: 0.8rem;
-  color: #2b653a;
-  font-weight: 600;
+/* ========================= NAVBAR.CSS (FULL REWRITE) - Fixes secondary-nav hiding - Fixes search bar going above header - Clean z-index layering - Removes duplicate/conflicting rules ========================= */
+/* ===== RESET / GLOBAL ===== */
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -70,78 +13,100 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Push page down (100px top bar + ~50px secondary) */
+/* Push page down (Top bar 70px + Secondary ~52px) */
 .page-content {
-  padding-top: 160px;
+  padding-top: 122px;
 }
 
-/* ===== TOP FIXED NAVBAR (your old one, same style) ===== */
+/* ================================= TOP FIXED NAVBAR (HEADER) ================================= */
 .nav-wrapper {
-  background-color: #ffffff;
-  padding: 0.4rem 1rem;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100px;
-  z-index: 1300;
+  height: 70px;
+  background: #ffffff;
+  padding: 0.4rem 1rem;
+  z-index: 1200;
+  /* ✅ always above secondary nav */
   display: flex;
   justify-content: center;
-}
-
-/* ... existing styles ... */
-
-.brand-logo {
-  height: 60px !important;
-  max-height: 60px !important;
-  width: auto;
-  object-fit: contain;
-  cursor: pointer;
-  transition: transform 0.2s ease;
+  overflow: visible;
+  /* ✅ allows dropdowns */
 }
 
 .nav-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   width: 100%;
   max-width: 1300px;
   margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: visible;
 }
 
 .nav-left {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 0 0 260px;
+  overflow: visible;
+}
+
+.brand {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.brand-logo {
+  height: 62px;
+  max-height: 70px;
+  width: auto;
+  object-fit: contain;
+  cursor: pointer;
+
+  transform: scale(5);
+  /* ⬅️ pehle 1.25 tha, ab zyada bara */
+  transform-origin: left center;
+  transition: transform 0.2s ease;
+}
+
+.brand-logo:hover {
+  transform: scale(2.5);
+  /* hover pe thora aur */
 }
 
 .nav-center {
+  flex: 1;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 15px;
-  flex: 1;
-  justify-content: center;
+  overflow: visible;
 }
 
-/* SEARCH BAR */
+/* ================================= SEARCH BAR + SUGGESTIONS ================================= */
 .search-bar {
   position: relative;
+  /* ✅ parent for dropdown */
   width: 400px;
-  margin-right: 40px;
   height: 40px;
-  z-index: 2000;
+  margin-right: 40px;
+  z-index: 1201;
+  /* ✅ just above header */
+  overflow: visible;
 }
 
 .search-bar input {
   width: 100%;
-  box-sizing: border-box;
-  padding: 8px 35px 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 0;
-  outline: none;
   height: 40px;
+  border: 1px solid #ccc;
+  outline: none;
+  padding: 8px 35px 8px 12px;
   font-size: 0.95rem;
-  background-color: #efeded;
+  background: #efeded;
+  border-radius: 0;
 }
 
 .search-bar input:focus {
@@ -156,38 +121,84 @@ body {
   transform: translateY(-50%);
   color: #555;
   cursor: pointer;
-  z-index: 10;
+  z-index: 2;
 }
 
 .search-icon:hover {
-  background-color: #e6e6e6;
   color: #2b653a;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-50%) scale(1.08);
 }
 
-/* RIGHT ICONS */
+/* ✅ Dropdown must be above everything */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  z-index: 5000;
+  /* ✅ highest */
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background: #f6f6f6;
+}
+
+.suggestion-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.suggestion-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.suggestion-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+}
+
+.suggestion-price {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #666;
+}
+
+/* ================================= RIGHT ICONS ================================= */
 .nav-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.brand {
-  text-decoration: none;
-}
-
-.brand-name {
-  font-weight: 700;
-  font-size: 1.4rem;
-  color: rgb(43, 101, 58);
-  text-decoration: none;
-}
-
 .icon-btn {
   background: transparent;
   border: none;
-  color: black;
+  color: #111;
   cursor: pointer;
   padding: 0.35rem;
   border-radius: 6px;
@@ -195,64 +206,43 @@ body {
 }
 
 .icon-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.06);
   transform: scale(1.05);
 }
 
-/* BADGES */
-.cart-wrapper {
-  position: relative;
-}
-
-.cart-badge {
-  position: absolute;
-  top: -6px;
-  right: -4px;
-  background: red;
-  color: white;
-  font-size: 0.65rem;
-  font-weight: 700;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 20;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-}
-
+/* Badges */
+.cart-wrapper,
 .wishlist-wrapper {
   position: relative;
 }
 
+.cart-badge,
 .wishlist-badge {
   position: absolute;
   top: -6px;
   right: -4px;
   background: red;
-  color: white;
+  color: #fff;
   font-size: 0.65rem;
   font-weight: 700;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
+  border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  z-index: 20;
+  z-index: 2;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
-/* ===== LOCATION BOX ===== */
+/* ================================= LOCATION BOX (if you use it) ================================= */
 .nav-location-box {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #ddd;
   padding: 6px 10px;
   height: 45px;
@@ -260,7 +250,7 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  border-radius: 0 !important;
+  border-radius: 0;
 }
 
 .nav-location-box:hover {
@@ -290,28 +280,18 @@ body {
   flex-shrink: 0;
 }
 
-/* ===== SECONDARY NAVBAR (MEN / WOMEN etc.) ===== */
+/* ================================= SECONDARY NAV (HOME / WOMEN / MEN) ================================= */
 .secondary-nav {
   position: fixed;
-  top: 100px;
-  /* Adjusted for taller navbar */
+  top: 70px;
+  /* ✅ exactly below header */
   left: 0;
   width: 100%;
   background: #ffffff;
   border-bottom: 1px solid #e5e5e5;
-  z-index: 1200;
-  /* اوپر نظر آئے، کہیں hide نہ ہو */
-}
-
-/* ... existing styles ... */
-
-.brand-logo {
-  height: 60px !important;
-  max-height: 60px !important;
-  width: auto;
-  object-fit: contain;
-  cursor: pointer;
-  transition: transform 0.2s ease;
+  margin-top: 20px;
+  z-index: 1100;
+  /* ✅ below header, above content */
 }
 
 .main-menu-wrapper {
@@ -320,12 +300,10 @@ body {
   padding: 0 1rem;
 }
 
-/* ADD THIS PART: */
 .main-menu {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* ⬅️ this centers all items */
   gap: 32px;
   list-style: none;
   margin: 0;
@@ -333,9 +311,8 @@ body {
   text-transform: uppercase;
   font-size: 0.9rem;
   letter-spacing: 0.08em;
-  position: relative;
   width: 100%;
-  /* ⬅️ helps centering nicely */
+  position: relative;
 }
 
 .main-menu li {
@@ -350,10 +327,8 @@ body {
   font-size: 0.9rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #555555;
-  /* was #111 – now grey */
+  color: #555;
   font-weight: 600;
-  /* bold */
   text-decoration: none;
 }
 
@@ -361,21 +336,18 @@ body {
   color: #2b653a;
 }
 
-/* ===== MEGA MENU ===== */
-.has-mega .main-menu-link {
-  position: relative;
-}
-
+/* ================================= MEGA MENU (WOMEN / MEN) ================================= */
 .mega-menu {
   position: absolute;
   left: 50%;
   top: 100%;
   transform: translateX(-50%);
-  margin-top: 0;
   width: 1440px;
   background: #eeebeb;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
   padding: 30px 30px 32px;
+  z-index: 1300;
+  /* ✅ above secondary nav */
 }
 
 .mega-inner {
@@ -390,105 +362,10 @@ body {
   gap: 20px;
   flex: 2;
   justify-content: center;
-  /* 🔥 center all category columns */
 }
 
 .mega-col {
   min-width: 120px;
-}
-
-.mega-heading {
-  font-size: 0.95rem;
-  font-weight: 700;
-  margin: 0 0 10px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 6px;
-}
-
-.mega-link {
-  display: block;
-  background: none;
-  border: none;
-  padding: 4px 0;
-  margin: 0;
-  width: 100%;
-  text-align: left;
-  font-size: 0.86rem;
-  color: #787777;
-  cursor: pointer;
-  text-transform: none;
-}
-
-.mega-link:hover {
-  color: #2b653a;
-}
-
-/* right side image */
-.mega-image {
-  flex: 1;
-  min-width: 300px;
-  display: flex;
-  align-items: flex-start;
-  /* image starts higher, feels lighter */
-  justify-content: center;
-}
-
-.mega-image img {
-  width: 100%;
-  max-width: 300px;
-  /* smaller than 320 */
-  max-height: 350px;
-  /* limit height too */
-  height: auto;
-  object-fit: cover;
-  object-position: top;
-}
-
-/* ===== SMALLER SCREENS ===== */
-@media (max-width: 900px) {
-  .search-bar input {
-    width: 260px;
-  }
-
-  .main-menu {
-    gap: 16px;
-    font-size: 0.8rem;
-  }
-
-  .mega-menu {
-    width: 100vw;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .mega-columns {
-    gap: 24px;
-  }
-
-  .mega-image {
-    display: none;
-    /* you can keep or remove image on mobile */
-  }
-}
-
-@media (max-width: 600px) {
-  .nav-container {
-    padding: 0 6px;
-  }
-
-  .search-bar {
-    display: none;
-    /* optional: hide search on very small screens */
-  }
-
-  .main-menu-wrapper {
-    padding: 0 0.6rem;
-  }
-
-  .main-menu {
-    gap: 10px;
-    font-size: 0.7rem;
-  }
 }
 
 .mega-heading-btn {
@@ -502,86 +379,49 @@ body {
   font-weight: 700;
   border-bottom: 1px solid #ddd;
   cursor: pointer;
+  color: #111;
 }
 
 .mega-heading-btn:hover {
   color: #2b653a;
 }
 
-/* IMPORTANT: allow dropdown to float above everything */
-.nav-wrapper,
-.nav-container,
-.nav-center,
-.search-bar {
-  overflow: visible !important;
-}
-
-/* Put dropdown above secondary nav + mega menus */
-.search-suggestions {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
+.mega-link {
+  display: block;
   width: 100%;
-  background: #fff;
-  border: 1px solid #e6e6e6;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-  z-index: 99999;
-  /* ✅ biggest */
-}
-
-/* make search-bar a positioning parent */
-.search-bar {
-  position: relative;
-  z-index: 99999;
-  /* ✅ above secondary nav */
-}
-
-/* secondary nav should be lower than suggestions */
-
-
-/* suggestion item layout */
-.suggestion-item {
-  display: flex;
-  gap: 10px;
-  padding: 10px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-size: 0.86rem;
+  color: #787777;
   cursor: pointer;
-  align-items: center;
+  text-transform: none;
 }
 
-.suggestion-item:hover {
-  background: #f6f6f6;
+.mega-link:hover {
+  color: #2b653a;
 }
 
-.suggestion-img {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.suggestion-info {
+/* Right side image */
+.mega-image {
+  flex: 1;
+  min-width: 300px;
   display: flex;
-  flex-direction: column;
-  line-height: 1.2;
+  align-items: flex-start;
+  justify-content: center;
 }
 
-.suggestion-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0;
+.mega-image img {
+  width: 100%;
+  max-width: 300px;
+  max-height: 350px;
+  height: auto;
+  object-fit: cover;
+  object-position: top;
 }
 
-.suggestion-price {
-  font-size: 12px;
-  color: #666;
-  margin: 2px 0 0;
-}
-
-
-
-
-/* ✅ MOBILE NAV DRAWER */
+/* ================================= MOBILE MENU (DRAWER) ================================= */
 .mobile-hamburger {
   display: none;
   background: none;
@@ -594,14 +434,11 @@ body {
 
 .mobile-menu-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 2000;
-  -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -610,7 +447,6 @@ body {
   top: 0;
   left: 0;
   width: 280px;
-  /* Width of the drawer */
   height: 100%;
   background: #fff;
   z-index: 2100;
@@ -676,34 +512,53 @@ body {
   color: #2b653a;
 }
 
-/* MEDIA QUERY UPDATES */
+/* ================================= RESPONSIVE ================================= */
 @media (max-width: 900px) {
   .mobile-hamburger {
     display: block;
   }
 
-  /* Hide standard secondary nav on mobile */
+  /* hide desktop secondary nav on mobile */
   .secondary-nav {
     display: none;
   }
 
-  /* Adjust nav layout */
-  .nav-left {
-    flex: 1;
-    /* allow logo to center or move */
+  /* on medium screens, shrink search */
+  .search-bar {
+    width: 280px;
+    margin-right: 0;
   }
 
   .nav-center {
     justify-content: flex-end;
-    /* search icon moves right */
   }
 
   .nav-location-box {
     display: none;
-    /* Hide location dropdown on mobile to save space */
   }
 }
 
+@media (max-width: 600px) {
+  .nav-container {
+    padding: 0 6px;
+  }
+
+  /* optional: hide search on very small screens */
+  .search-bar {
+    display: none;
+  }
+
+  .brand-logo {
+    width: 200px;
+    height: 58px;
+  }
+
+  .nav-left {
+    flex: 0 0 200px;
+  }
+}
+
+/* ================================= ANIMATIONS ================================= */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -711,5 +566,65 @@ body {
 
   to {
     opacity: 1;
+  }
+}
+
+/* ✅ MOBILE ICON SPACING (ONLY MOBILE) */
+@media (max-width: 600px) {
+  .nav-actions {
+    margin-left: 10px;
+    /* search se thora gap */
+    gap: 12px;
+    /* 3 icons ke darmiyan gap */
+  }
+
+  .nav-center {
+    margin-right: 10px;
+    /* search aur icons me separation */
+  }
+
+  .icon-btn {
+    padding: 10px;
+    /* tap area bigger + spacing feel */
+  }
+}
+
+/* ✅ 600px–900px: search visible hoti hai, icons ko search se door + gap thora kam */
+@media (max-width: 900px) and (min-width: 601px) {
+  .nav-actions {
+    margin-left: 18px;
+    /* ✅ search bar se distance */
+    gap: 2px;
+    /* ✅ icons ke darmiyan thora kam space */
+  }
+
+  .nav-center {
+    margin-right: 10px;
+    /* ✅ center block aur icons me separation */
+  }
+
+  .icon-btn {
+    padding: 8px;
+    /* ✅ tap area ok, but not too wide */
+  }
+
+  /* optional: search width thori aur choti */
+  .search-bar {
+    width: 260px;
+  }
+}
+
+/* ✅ <=600px: aapke existing rules, but icons gap thora kam kar do */
+@media (max-width: 600px) {
+  .nav-actions {
+    margin-left: 12px;
+    /* search hidden, still a little breathing space */
+    gap: 2px;
+    /* ✅ pehle 12px tha, ab kam */
+  }
+
+  .icon-btn {
+    padding: 8px;
+    /* ✅ pehle 10px tha, ab kam */
   }
 }

@@ -33,18 +33,9 @@ function getAnyImage(p) {
 
 export default function MostPopular({ limit = 4 }) {
   const navigate = useNavigate();
-  const { products = [], brands: brandsFromDb = [] } = useProducts();
+  const { products = [] } = useProducts(); // ✅ brandsFromDb remove
 
   const popularBrands = useMemo(() => {
-    const brandImageMap = new Map(
-      (brandsFromDb || [])
-        .filter((b) => b?.name)
-        .map((b) => [
-          String(b.name).trim().toLowerCase(),
-          b.image || b.logo || '',
-        ])
-    );
-
     const map = new Map();
 
     products.forEach((p) => {
@@ -61,9 +52,7 @@ export default function MostPopular({ limit = 4 }) {
           items: 0,
           onSaleCount: 0,
           maxSalePercent: 0,
-          // Sale score will decide top brands
           saleScore: 0,
-          image: brandImageMap.get(key) || '',
           _firstProductImage: '',
         });
       }
@@ -71,6 +60,7 @@ export default function MostPopular({ limit = 4 }) {
       const row = map.get(key);
       row.items += 1;
 
+      // ✅ Brand ka image = first product image
       if (!row._firstProductImage) row._firstProductImage = getAnyImage(p);
 
       const salePct = getDiscountPercent(p);
@@ -79,23 +69,17 @@ export default function MostPopular({ limit = 4 }) {
       if (isOnSale) {
         row.onSaleCount += 1;
         if (salePct > row.maxSalePercent) row.maxSalePercent = salePct;
-
-        // ✅ Sale score formula:
-        // - count matters most (many sale items)
-        // - higher discount adds extra weight
-        row.saleScore += 10 + salePct; // you can tune this
+        row.saleScore += 10 + salePct;
       }
     });
 
     const arr = Array.from(map.values()).map((b) => ({
       ...b,
-      image: b.image || b._firstProductImage || FALLBACK_BRAND_IMAGE,
+      image: b._firstProductImage || FALLBACK_BRAND_IMAGE, // ✅ logo removed
       discountText:
         b.maxSalePercent > 0 ? `Up to ${b.maxSalePercent}% off` : '',
     }));
 
-    // ✅ Sort by SALE SCORE first (most important)
-    // If tie, show brand with more total items
     arr.sort((a, b) => {
       if (b.saleScore !== a.saleScore) return b.saleScore - a.saleScore;
       if (b.onSaleCount !== a.onSaleCount) return b.onSaleCount - a.onSaleCount;
@@ -103,10 +87,9 @@ export default function MostPopular({ limit = 4 }) {
     });
 
     return arr.slice(0, limit);
-  }, [products, brandsFromDb, limit]);
+  }, [products, limit]);
 
   const handleBrandClick = (brand) => {
-    // ✅ go to brand page that shows ALL products of this brand
     navigate(`/brand/${encodeURIComponent(brand.slug)}`);
   };
 

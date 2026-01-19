@@ -1,13 +1,23 @@
-// src/pages/Cart.jsx
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import './Cart.css';
 import { useCart } from '../context/CartContext.jsx';
 import { Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Cart() {
   const navigate = useNavigate();
+  const { user, authReady } = useAuth();
+
   const { cart = [], removeFromCart, increaseQty, decreaseQty } = useCart();
+
+  useEffect(() => {
+    if (!authReady) return; // ✅ wait until session restored
+    if (!user) navigate('/login', { replace: true, state: { pulse: true } });
+  }, [user, authReady, navigate]);
+
+  if (!authReady) return null;
+  if (!user) return null;
 
   const totalItems = useMemo(
     () => cart.reduce((acc, item) => acc + Number(item.qty || 0), 0),
@@ -28,7 +38,6 @@ export default function Cart() {
       <div className="cart-content">
         <h2 className="cart-title">Shopping Cart</h2>
 
-        {/* EMPTY CART */}
         {cart.length === 0 ? (
           <div className="empty-cart">
             <div className="empty-icon">
@@ -47,7 +56,6 @@ export default function Cart() {
           </div>
         ) : (
           <>
-            {/* CART ITEMS */}
             <div className="cart-items">
               {cart.map((item) => {
                 const qty = Number(item.qty || 1);
@@ -63,10 +71,8 @@ export default function Cart() {
                     className="cart-item"
                     key={`${item.id}-${item.size || ''}`}
                   >
-                    {/* LEFT — PRODUCT IMAGE */}
                     <div className="cart-left">
                       <div className="cart-img-wrapper">
-                        {/* SALE BADGE – top left */}
                         {showSale ? (
                           <div className="cart-sale-badge">
                             {Number(item.salePercent || 0) > 0
@@ -87,31 +93,39 @@ export default function Cart() {
                       </div>
                     </div>
 
-                    {/* CENTER — NAME, BRAND, SIZE, DESC, QTY */}
                     <div className="cart-center">
                       <h4 className="cart-name">{item.name}</h4>
                       <p className="cart-code">{item.brand}</p>
 
-                      {/* ✅ SIZE */}
                       {item.size ? (
                         <p className="cart-size">
                           Size: <strong>{item.size}</strong>
                         </p>
                       ) : null}
 
-                      {/* ✅ DESCRIPTION */}
                       {item.description ? (
                         <p className="cart-desc">{item.description}</p>
                       ) : null}
 
                       <div className="qty-controls">
-                        <button onClick={() => decreaseQty(item.id)}>-</button>
+                        <button
+                          onClick={() =>
+                            decreaseQty(item.id, item.size || null)
+                          }
+                        >
+                          -
+                        </button>
                         <span>{qty}</span>
-                        <button onClick={() => increaseQty(item.id)}>+</button>
+                        <button
+                          onClick={() =>
+                            increaseQty(item.id, item.size || null)
+                          }
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
 
-                    {/* RIGHT — PRICE + DELETE */}
                     <div className="cart-right">
                       <p className="cart-price">
                         PKR {lineTotal.toLocaleString()}
@@ -119,7 +133,9 @@ export default function Cart() {
 
                       <button
                         className="delete-btn"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() =>
+                          removeFromCart(item.id, item.size || null)
+                        }
                         aria-label="Remove item"
                         title="Remove"
                       >
@@ -131,7 +147,6 @@ export default function Cart() {
               })}
             </div>
 
-            {/* SUMMARY */}
             <div className="cart-summary">
               <h3>Total Items: {totalItems}</h3>
               <h3>Total Price: PKR {totalPrice.toLocaleString()}</h3>

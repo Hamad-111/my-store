@@ -51,7 +51,30 @@ const UNSTITCHED_STYLE_BY_TYPE = {
   VELVET: [],
 };
 
-const PIECES = ['1 Piece', '2 Piece', '3 Piece'];
+// ✅ Pieces depend on TYPE + STYLE (same as UnstitchedTypeHeader)
+const PIECES_BY_TYPE_AND_STYLE = {
+  WINTER: {
+    PRINTED: ['3 Piece', 'Shirt & Trouser', 'Shirt'],
+    EMBROIDERED: ['3 Piece', 'Shirt & Trouser'],
+  },
+
+  PRINTED: {
+    SIGNATURE: ['3 Piece', '2 Piece', 'Shirt'],
+    GLAM: ['3 Piece', 'Shirt & Trouser'],
+    DAILYWEAR: ['2 Piece', 'Shirt', '3 Piece'],
+  },
+
+  EMBROIDERED: {
+    SIGNATURE: ['3 Piece', '2 Piece'],
+    GLAM: ['3 Piece'],
+    DAILYWEAR: ['3 Piece', 'Shirt & Trouser'],
+  },
+
+  // VELVET has no style circles; only 2 options
+  VELVET: {
+    __NO_STYLE__: ['3 Piece', '2 Piece'],
+  },
+};
 
 const RTW_TYPES = [
   { label: 'Embroidered', value: 'EMBROIDERED' },
@@ -91,32 +114,35 @@ const generateUUID = () =>
     return v.toString(16);
   });
 
+function withTimeout(promise, ms, label = 'Request') {
+  let t;
+  const timeout = new Promise((_, reject) => {
+    t = setTimeout(
+      () => reject(new Error(`${label} timeout after ${ms / 1000}s`)),
+      ms
+    );
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
+}
+
 async function uploadSingleImage(file) {
-  const ext = file.name.split('.').pop();
-  const fileName = `${Date.now()}-${Math.random()
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const fileName = `products/${Date.now()}-${Math.random()
     .toString(16)
     .slice(2)}.${ext}`;
 
-  const timeoutMs = 30000;
-  const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => {
-      reject(
-        new Error(
-          `Upload timed out after ${
-            timeoutMs / 1000
-          } seconds. Check internet connection.`
-        )
-      );
-    }, timeoutMs);
-  });
-
   const uploadPromise = supabase.storage
     .from(BUCKET_NAME)
-    .upload(fileName, file);
-  const { error } = await Promise.race([uploadPromise, timeoutPromise]);
+    .upload(fileName, file, { upsert: true });
+
+  const { data, error } = await withTimeout(
+    uploadPromise,
+    30000,
+    'Image upload'
+  );
 
   if (error) {
-    console.error('Full Upload Error:', error);
+    console.error('Upload error:', error);
     if (
       error.message?.includes('Bucket not found') ||
       error.message?.includes('The resource was not found')
@@ -125,11 +151,13 @@ async function uploadSingleImage(file) {
         `Storage bucket '${BUCKET_NAME}' not found. Supabase dashboard me bucket create karo.`
       );
     }
-    throw error;
+    throw new Error(error.message || 'Image upload failed');
   }
 
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(fileName);
-  return data.publicUrl;
+  const { data: pub } = supabase.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(data.path);
+  return pub?.publicUrl || '';
 }
 
 // Auto table mapping
@@ -149,7 +177,12 @@ export default function AddProductForm({
 }) {
   const isEdit = mode === 'edit';
 
+  const editTable = initialData?.table || null;
+  const editRow = initialData?.row || null;
+
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
   const [statusMessage, setStatusMessage] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -197,11 +230,9 @@ export default function AddProductForm({
   });
 
   // ✅ ------------- IMAGES (4 TOTAL) -------------
-  // thumb
   const [thumbFile, setThumbFile] = useState(null);
   const [thumbPreview, setThumbPreview] = useState('');
 
-  // 3 extras
   const [extraFiles, setExtraFiles] = useState([null, null, null]);
   const [extraPreviews, setExtraPreviews] = useState(['', '', '']);
 
@@ -222,32 +253,47 @@ export default function AddProductForm({
     return UNSTITCHED_STYLE_BY_TYPE[cat.unstitchedType] || [];
   }, [cat.unstitchedType]);
 
+  // ✅ effective style (if empty -> first style option)
+  const effectiveUnstitchedStyle = useMemo(() => {
+    const opts = UNSTITCHED_STYLE_BY_TYPE[cat.unstitchedType] || [];
+    return cat.unstitchedStyle || (opts[0]?.value ?? '');
+  }, [cat.unstitchedType, cat.unstitchedStyle]);
+
+  const unstitchedPiecesOptions = useMemo(() => {
+    const t = cat.unstitchedType;
+    if (t === 'VELVET') return PIECES_BY_TYPE_AND_STYLE.VELVET.__NO_STYLE__;
+    const styleKey = effectiveUnstitchedStyle;
+    return (
+      (PIECES_BY_TYPE_AND_STYLE[t] && PIECES_BY_TYPE_AND_STYLE[t][styleKey]) ||
+      []
+    );
+  }, [cat.unstitchedType, effectiveUnstitchedStyle]);
+
   const rtwSubTypeOptions = useMemo(() => {
     return RTW_SUBTYPE_BY_TYPE[cat.rtwType] || [];
   }, [cat.rtwType]);
 
   // --------- Edit mode load ----------
   useEffect(() => {
-    if (!isEdit || !initialData?.row || !initialData?.table) return;
-    const row = initialData.row;
+    if (!isEdit || !editRow || !editTable) return;
 
-    // ✅ restore images like ProductContext normalizeDbImages expects:
-    // image = thumb, images = array
+    const row = editRow;
+
     const imgs = Array.isArray(row.images)
       ? row.images
       : typeof row.images === 'string'
-      ? (() => {
-          try {
-            const parsed = JSON.parse(row.images);
-            return Array.isArray(parsed) ? parsed : [];
-          } catch {
-            return [];
-          }
-        })()
-      : [];
+        ? (() => {
+            try {
+              const parsed = JSON.parse(row.images);
+              return Array.isArray(parsed) ? parsed : [];
+            } catch {
+              return [];
+            }
+          })()
+        : [];
 
     const thumb = row.image || imgs[0] || '';
-    const extras = imgs.filter(Boolean).slice(1, 4); // 3 extras
+    const extras = imgs.filter(Boolean).slice(1, 4);
     const filledExtras = [extras[0] || '', extras[1] || '', extras[2] || ''];
 
     setThumbPreview(thumb || '');
@@ -272,8 +318,7 @@ export default function AddProductForm({
       details: row.details || '',
     }));
 
-    // Category restore
-    const isMen = initialData.table === 'men_products';
+    const isMen = editTable === 'men_products';
 
     if (isMen) {
       setCat((p) => ({
@@ -286,9 +331,8 @@ export default function AddProductForm({
       return;
     }
 
-    const isUn = initialData.table === 'unstitched_products';
-    const isRtw = initialData.table === 'ready_to_wear_products';
-    const isAcc = initialData.table === 'accessories_products';
+    const isUn = editTable === 'unstitched_products';
+    const isRtw = editTable === 'ready_to_wear_products';
 
     setCat((p) => ({
       ...p,
@@ -296,8 +340,8 @@ export default function AddProductForm({
       womenSection: isUn
         ? 'UNSTITCHED'
         : isRtw
-        ? 'READY_TO_WEAR'
-        : 'ACCESSORIES',
+          ? 'READY_TO_WEAR'
+          : 'ACCESSORIES',
 
       unstitchedType: row.unstitched_type || row.sub_category || 'WINTER',
       unstitchedStyle: row.style || '',
@@ -310,7 +354,7 @@ export default function AddProductForm({
       accessoryType: row.sub_category || 'JEWELLRY',
       size: row.size || '',
     }));
-  }, [isEdit, initialData]);
+  }, [isEdit, editRow, editTable]);
 
   const setField = (key, val) => setForm((p) => ({ ...p, [key]: val }));
 
@@ -369,48 +413,51 @@ export default function AddProductForm({
   // ---------- Submit ----------
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    if (saving) return;
+
+    setSaving(true);
     setLoading(true);
-    setStatusMessage('Starting...');
+    setStatusMessage('');
     setError(null);
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session) {
-      setLoading(false);
-      setStatusMessage('');
-      setError('Session expired. Please log out and log in again.');
-      return;
-    }
-
     try {
+      const { data: sess } = await supabase.auth.getSession();
+      const session = sess?.session;
+
+      if (!session) {
+        throw new Error('Session expired. Please log out and log in again.');
+      }
+
       if (!form.title.trim() || !form.brand.trim() || form.price === '') {
         throw new Error('Title, Brand, aur Price required hain.');
       }
 
-      // ✅ thumb required (create mode only)
-      if (!isEdit && !thumbFile) {
+      // ✅ thumb required only in create
+      if (!isEdit && !thumbFile && !thumbPreview) {
         throw new Error('Thumbnail image upload karo.');
       }
 
       // category validation
       if (cat.mainCategory === 'WOMEN') {
         if (!cat.womenSection) throw new Error('Women section select karo.');
+
         if (cat.womenSection === 'UNSTITCHED' && !cat.unstitchedType) {
           throw new Error('Unstitched type select karo.');
         }
-        if (cat.womenSection === 'READY_TO_WEAR' && !cat.rtwType) {
-          throw new Error('RTW type select karo.');
+
+        if (cat.womenSection === 'READY_TO_WEAR') {
+          if (!cat.rtwType) throw new Error('RTW type select karo.');
+          if (!cat.size) throw new Error('RTW ke liye sizes select karo.');
         }
-        if (cat.womenSection === 'READY_TO_WEAR' && !cat.size) {
-          throw new Error('RTW ke liye sizes select karo.');
-        }
+
         if (cat.womenSection === 'ACCESSORIES' && !cat.accessoryType) {
           throw new Error('Accessory type select karo.');
         }
       } else {
         if (!cat.menCategory) throw new Error('Men category select karo.');
+        if (!cat.fabric.trim()) throw new Error('Men fabric is required.');
+
         if (
           (cat.menCategory === 'KURTA' || cat.menCategory === 'SHIRTS') &&
           !cat.size
@@ -419,40 +466,55 @@ export default function AddProductForm({
         }
       }
 
+      // ✅ Edit guard
+      if (isEdit) {
+        if (!editTable || !editRow?.id) {
+          throw new Error(
+            'Edit data missing (table/id). Close modal and open edit again.'
+          );
+        }
+      }
+
       // ✅ Upload images
       setStatusMessage('Uploading images...');
 
-      // thumb url (edit mode supports existing)
       const existingThumbUrl = thumbPreview && !thumbFile ? thumbPreview : '';
-      const thumbUrl = thumbFile
-        ? await uploadSingleImage(thumbFile)
-        : existingThumbUrl;
+      const thumbPromise = thumbFile
+        ? withTimeout(uploadSingleImage(thumbFile), 35000, 'Thumbnail upload')
+        : Promise.resolve(existingThumbUrl);
+
+      const extraPromises = [0, 1, 2].map((i) => {
+        const existing =
+          extraPreviews[i] && !extraFiles[i] ? extraPreviews[i] : '';
+        if (extraFiles[i])
+          return withTimeout(
+            uploadSingleImage(extraFiles[i]),
+            35000,
+            `Extra image ${i + 1}`
+          );
+        return Promise.resolve(existing);
+      });
+
+      const [thumbUrl, e1, e2, e3] = await withTimeout(
+        Promise.all([thumbPromise, ...extraPromises]),
+        45000,
+        'All uploads'
+      );
 
       if (!thumbUrl) throw new Error('Thumbnail upload failed.');
 
-      // extras: existing previews (in edit) OR upload new file
-      const extraUrls = [];
-      for (let i = 0; i < 3; i++) {
-        const existing =
-          extraPreviews[i] && !extraFiles[i] ? extraPreviews[i] : '';
-        const uploaded = extraFiles[i]
-          ? await uploadSingleImage(extraFiles[i])
-          : '';
-        const final = uploaded || existing || '';
-        if (final) extraUrls.push(final);
-      }
+      const imagesArr = [thumbUrl, e1, e2, e3].filter(Boolean).slice(0, 4);
 
-      // Final images array: [thumb + up to 3 extras] (total max 4)
-      const imagesArr = [thumbUrl, ...extraUrls].slice(0, 4);
-
-      // pricing
+      // pricing/stock
       const price = Number(form.price);
       const original =
         form.originalPrice === '' ? null : Number(form.originalPrice);
       const salePercent = Number(form.salePercent || 0);
       const onSale = salePercent > 0 || (original !== null && original > price);
+      const stockQty = Number(form.stockQuantity || 0);
+      const inStockFinal = !!form.inStock && stockQty > 0;
 
-      // category mapping to DB fields
+      // category mapping
       let main_category = null;
       let sub_category = null;
 
@@ -476,9 +538,22 @@ export default function AddProductForm({
           main_category = 'UNSTITCHED';
           sub_category = 'UNSTITCHED';
           unstitched_type = cat.unstitchedType;
-          style = cat.unstitchedStyle || null;
-          pieces = cat.pieces || null;
-          size = null;
+
+          const finalStyle =
+            cat.unstitchedType === 'VELVET'
+              ? null
+              : effectiveUnstitchedStyle || null;
+
+          style = finalStyle;
+
+          const piecesOptions =
+            cat.unstitchedType === 'VELVET'
+              ? PIECES_BY_TYPE_AND_STYLE.VELVET.__NO_STYLE__ || []
+              : (PIECES_BY_TYPE_AND_STYLE[cat.unstitchedType] || {})[
+                  finalStyle
+                ] || [];
+
+          pieces = cat.pieces || piecesOptions[0] || null;
         }
 
         if (cat.womenSection === 'READY_TO_WEAR') {
@@ -491,12 +566,11 @@ export default function AddProductForm({
 
         if (cat.womenSection === 'ACCESSORIES') {
           main_category = 'ACCESSORIES';
-          sub_category = cat.accessoryType; // JEWELLRY, SHAWLS...
+          sub_category = cat.accessoryType;
           size = cat.size || null;
         }
       }
 
-      // ✅ Common payload (matches ProductContext mapping)
       const basePayload = {
         title: form.title.trim(),
         brand: form.brand.trim(),
@@ -510,18 +584,17 @@ export default function AddProductForm({
         is_new: !!form.isNew,
         is_best_seller: !!form.isBestSeller,
 
-        in_stock: !!form.inStock,
-        stock_quantity: Number(form.stockQuantity || 0),
-        popularity: Number(form.popularity || 0),
+        in_stock: inStockFinal,
+        stock_quantity: stockQty,
 
+        popularity: Number(form.popularity || 0),
         tag: form.tag?.trim() || null,
 
         description: form.description?.trim() || null,
         details: form.details || null,
 
-        // ✅ THUMB + IMAGES ARRAY (4 total)
-        image: thumbUrl, // thumb for ProductManagement table
-        images: imagesArr, // ProductContext reads this fine
+        image: thumbUrl,
+        images: imagesArr,
 
         main_category,
         sub_category,
@@ -532,35 +605,36 @@ export default function AddProductForm({
 
       if (cat.mainCategory === 'MEN') {
         finalPayload = { ...finalPayload, size };
-      } else {
-        if (cat.womenSection === 'UNSTITCHED') {
-          finalPayload = { ...finalPayload, unstitched_type, style, pieces };
-        } else if (cat.womenSection === 'READY_TO_WEAR') {
-          finalPayload = { ...finalPayload, rtw_type, rtw_sub_type, size };
-        } else if (cat.womenSection === 'ACCESSORIES') {
-          finalPayload = { ...finalPayload, size };
-        }
+      } else if (cat.womenSection === 'UNSTITCHED') {
+        finalPayload = { ...finalPayload, unstitched_type, style, pieces };
+      } else if (cat.womenSection === 'READY_TO_WEAR') {
+        finalPayload = { ...finalPayload, rtw_type, rtw_sub_type, size };
+      } else if (cat.womenSection === 'ACCESSORIES') {
+        finalPayload = { ...finalPayload, size };
       }
 
       setStatusMessage(isEdit ? 'Updating product...' : 'Saving product...');
 
       if (isEdit) {
-        const pid = initialData?.row?.id;
-        if (!pid) throw new Error('Edit mode: product id missing.');
+        const pid = editRow.id;
 
-        const { error: upErr } = await supabase
-          .from(initialData.table)
-          .update(finalPayload)
-          .eq('id', pid);
+        const { error: upErr } = await withTimeout(
+          supabase.from(editTable).update(finalPayload).eq('id', pid),
+          20000,
+          'DB update'
+        );
 
         if (upErr) throw upErr;
       } else {
         const newId = form.id?.trim() ? form.id.trim() : generateUUID();
         const insertPayload = { id: newId, ...finalPayload };
 
-        const { error: insErr } = await supabase
-          .from(tableName)
-          .insert([insertPayload]);
+        const { error: insErr } = await withTimeout(
+          supabase.from(tableName).insert([insertPayload]),
+          20000,
+          'DB insert'
+        );
+
         if (insErr) throw insErr;
       }
 
@@ -568,13 +642,14 @@ export default function AddProductForm({
       setTimeout(() => {
         onProductAdded?.();
         onClose?.();
-      }, 900);
+      }, 700);
     } catch (err) {
       console.error(err);
-      setError(err.message || 'Failed.');
+      setError(err?.message || 'Failed.');
     } finally {
       setLoading(false);
       setStatusMessage('');
+      setSaving(false);
     }
   };
 
@@ -625,20 +700,27 @@ export default function AddProductForm({
                 <label>Main</label>
                 <select
                   value={cat.mainCategory}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const nextMain = e.target.value;
+
                     setCat((p) => ({
                       ...p,
-                      mainCategory: e.target.value,
+                      mainCategory: nextMain,
+
+                      size: '',
+                      fabric: '',
+                      pieces: '',
+                      unstitchedStyle: '',
+                      rtwSubType: '',
+
                       womenSection: 'UNSTITCHED',
                       unstitchedType: 'WINTER',
-                      unstitchedStyle: '',
                       rtwType: 'EMBROIDERED',
-                      rtwSubType: '',
                       accessoryType: 'JEWELLRY',
+
                       menCategory: 'KURTA',
-                      size: '',
-                    }))
-                  }
+                    }));
+                  }}
                 >
                   {MAIN.map((m) => (
                     <option key={m.value} value={m.value}>
@@ -673,6 +755,7 @@ export default function AddProductForm({
               ) : (
                 <div className="apf-field">
                   <label>Men Category</label>
+
                   <select
                     value={cat.menCategory}
                     onChange={(e) =>
@@ -689,11 +772,26 @@ export default function AddProductForm({
                       </option>
                     ))}
                   </select>
+
+                  {cat.mainCategory === 'MEN' && (
+                    <div className="apf-grid2" style={{ marginTop: 12 }}>
+                      <div className="apf-field apf-span2">
+                        <label>Fabric (Men) *</label>
+                        <input
+                          value={cat.fabric}
+                          onChange={(e) =>
+                            setCat((p) => ({ ...p, fabric: e.target.value }))
+                          }
+                          placeholder="e.g. Wash & Wear, Cotton, Boski"
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* ✅ MEN sizes */}
             {showMenSizes && (
               <div className="apf-grid2" style={{ marginTop: 12 }}>
                 <div className="apf-field apf-span2">
@@ -722,7 +820,6 @@ export default function AddProductForm({
               </div>
             )}
 
-            {/* WOMEN - UNSTITCHED */}
             {cat.mainCategory === 'WOMEN' &&
               cat.womenSection === 'UNSTITCHED' && (
                 <div className="apf-grid2" style={{ marginTop: 12 }}>
@@ -730,13 +827,18 @@ export default function AddProductForm({
                     <label>Unstitched Type</label>
                     <select
                       value={cat.unstitchedType}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const nextType = e.target.value;
+                        const opts = UNSTITCHED_STYLE_BY_TYPE[nextType] || [];
+                        const nextStyle = opts[0]?.value || '';
+
                         setCat((p) => ({
                           ...p,
-                          unstitchedType: e.target.value,
-                          unstitchedStyle: '',
-                        }))
-                      }
+                          unstitchedType: nextType,
+                          unstitchedStyle: nextStyle,
+                          pieces: '',
+                        }));
+                      }}
                     >
                       {UNSTITCHED_TYPES.map((t) => (
                         <option key={t.value} value={t.value}>
@@ -754,9 +856,10 @@ export default function AddProductForm({
                         setCat((p) => ({ ...p, pieces: e.target.value }))
                       }
                     >
-                      {PIECES.map((p) => (
-                        <option key={p} value={p}>
-                          {p}
+                      <option value="">Select Pieces</option>
+                      {unstitchedPiecesOptions.map((x) => (
+                        <option key={x} value={x}>
+                          {x}
                         </option>
                       ))}
                     </select>
@@ -800,7 +903,6 @@ export default function AddProductForm({
                 </div>
               )}
 
-            {/* WOMEN - RTW */}
             {cat.mainCategory === 'WOMEN' &&
               cat.womenSection === 'READY_TO_WEAR' && (
                 <div className="apf-grid2" style={{ marginTop: 12 }}>
@@ -883,7 +985,6 @@ export default function AddProductForm({
                 </div>
               )}
 
-            {/* WOMEN - ACCESSORIES */}
             {cat.mainCategory === 'WOMEN' &&
               cat.womenSection === 'ACCESSORIES' && (
                 <div className="apf-grid2" style={{ marginTop: 12 }}>
@@ -921,8 +1022,7 @@ export default function AddProductForm({
               )}
 
             <div className="apf-note">
-              <strong>Auto Table:</strong>{' '}
-              {isEdit ? initialData?.table : tableName}
+              <strong>Auto Table:</strong> {isEdit ? editTable : tableName}
             </div>
           </div>
 
@@ -931,7 +1031,6 @@ export default function AddProductForm({
             <div className="apf-section-title">Images (4 total)</div>
 
             <div className="apf-grid2">
-              {/* Thumbnail */}
               <div className="apf-field apf-span2">
                 <label>Thumbnail (Main) *</label>
                 <div className={`apf-drop ${thumbPreview ? 'has' : ''}`}>
@@ -951,7 +1050,6 @@ export default function AddProductForm({
                 </div>
               </div>
 
-              {/* 3 extra images */}
               <div className="apf-field">
                 <label>Extra Image 1</label>
                 <div className={`apf-drop sm ${extraPreviews[0] ? 'has' : ''}`}>
@@ -1220,12 +1318,16 @@ export default function AddProductForm({
             </div>
           </div>
 
-          <button className="apf-submit" type="submit" disabled={loading}>
-            {loading
+          <button
+            className="apf-submit"
+            type="submit"
+            disabled={loading || saving}
+          >
+            {loading || saving
               ? statusMessage || 'Saving...'
               : isEdit
-              ? 'Update Product'
-              : 'Add Product'}
+                ? 'Update Product'
+                : 'Add Product'}
           </button>
         </form>
       </div>

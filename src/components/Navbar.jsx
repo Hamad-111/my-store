@@ -1,165 +1,239 @@
-// src/layout/Navbar.jsx
-import React, { useState, useEffect } from 'react';
-import './Navbar.css';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-import { Heart, User, ShoppingCart, Search, ChevronDown, Menu, X, ChevronRight } from 'lucide-react';
+import './Navbar.css';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Heart,
+  Menu,
+  Search,
+  ShoppingCart,
+  User,
+  X,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
-import { useProducts } from '../context/ProductContext'; // Import ProductContext
+import { useProducts } from '../context/ProductContext';
 
-import LocationSelector from '../components/LocationSelector';
+const WOMEN_MENU = {
+  unstitched: {
+    title: 'UNSTITCHED',
+    mainLink: '/unstitched',
+    defaultImage: '/images/embroidary1.jfif',
+    items: [
+      {
+        label: 'Winter',
+        image: '/images/winter.jfif',
+        link: '/unstitched?type=winter',
+      },
+      {
+        label: 'Printed',
+        image: '/images/printed1.jfif',
+        link: '/unstitched?type=printed',
+      },
+      {
+        label: 'Embroidered',
+        image: '/images/embroidary2.jfif',
+        link: '/unstitched?type=embroidered',
+      },
+      {
+        label: 'Velvet',
+        image: '/images/valvet.jfif',
+        link: '/unstitched?type=velvet',
+      },
+    ],
+  },
+  readyToWear: {
+    title: 'READY TO WEAR',
+    mainLink: '/ready-to-wear',
+    defaultImage: '/images/cords1.jfif',
+    items: [
+      {
+        label: 'Embroidered',
+        image: '/images/embroidary3.jfif',
+        link: '/ready-to-wear?type=embroidered',
+      },
+      {
+        label: 'Printed',
+        image: '/images/printed2.jfif',
+        link: '/ready-to-wear?type=printed',
+      },
+      {
+        label: 'Solids',
+        image: '/images/solid.jfif',
+        link: '/ready-to-wear?type=solids',
+      },
+      {
+        label: 'Co-ords',
+        image: '/images/Coords.jfif',
+        link: '/ready-to-wear?type=coords',
+      },
+      {
+        label: 'Formals',
+        image: '/images/formal.jfif',
+        link: '/ready-to-wear?type=formals',
+      },
+      {
+        label: 'Kurtis',
+        image: '/images/kurtis4.jfif',
+        link: '/ready-to-wear?type=kurtis',
+      },
+      {
+        label: 'Bottoms',
+        image: '/images/womenbottom.jfif',
+        link: '/ready-to-wear?type=bottoms',
+      },
+    ],
+  },
+  accessories: {
+    title: 'ACCESSORIES',
+    mainLink: '/accessories',
+    defaultImage: '/images/jewl.jfif',
+    items: [
+      {
+        label: 'Jewellery',
+        image: '/images/jewl.jfif',
+        link: '/accessories?cat=jewellery',
+      },
+      {
+        label: 'Shawls',
+        image: '/images/womenshawl1.jfif',
+        link: '/accessories?cat=shawls',
+      },
+      {
+        label: 'Hair Accessories',
+        image: '/images/scarf.jfif',
+        link: '/accessories?cat=hair-accessories',
+      },
+    ],
+  },
+};
+
+const MEN_MENU = {
+  menswear: {
+    title: 'MENSWEAR',
+    mainLink: '/men?section=menswear',
+    defaultImage: '/images/menshirt5.jfif',
+    items: [
+      {
+        label: 'Kurta',
+        image: '/images/menkurti5.jfif',
+        link: '/men?section=menswear&category=kurta',
+      },
+      {
+        label: 'Shalwar Kameez',
+        image: '/images/menunstitched1.jfif',
+        link: '/men?section=menswear&category=shalwar-kameez',
+      },
+      {
+        label: 'Shirts',
+        image: '/images/menshirt1.jfif',
+        link: '/men?section=menswear&category=shirts',
+      },
+    ],
+  },
+};
 
 export default function Navbar() {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const [selectedLocation, setSelectedLocation] = useState('Pakistan');
-
-  const [showLocationBox, setShowLocationBox] = useState(false);
-
-  const [openMega, setOpenMega] = useState(null); // 'women' | 'men' | null
-  const [previewImage, setPreviewImage] = useState(null);
-
-  // ✅ MOBILE MENU STATE
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [mobileExpanded, setMobileExpanded] = useState({}); // { women: true, men: false ... }
-
-  const { cart } = useCart();
-  const { wishlist } = useWishlist();
   const navigate = useNavigate();
   const routerLocation = useLocation();
+  const { cart } = useCart();
+  const { wishlist } = useWishlist();
+  const { products: allProducts = [] } = useProducts();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+
+  const [openMega, setOpenMega] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [mobileExpanded, setMobileExpanded] = useState({
+    women: false,
+    men: false,
+  });
+
+  const [showSearchOverlay, setShowSearchOverlay] = useState(false);
 
   const hideSecondaryNav =
     routerLocation.pathname === '/login' ||
     routerLocation.pathname === '/signup';
 
-  // --------- WOMEN MENU DATA (columns + images) ----------
-  const womenMenu = {
-    unstitched: {
-      title: 'UNSTITCHED',
-      mainLink: '/unstitched',
-      defaultImage: '/images/embroidary1.jfif',
-      items: [
-        {
-          label: 'Winter',
-          image: '/images/winter.jfif',
-          link: '/unstitched?type=winter',
-        },
-        {
-          label: 'Printed',
-          image: '/images/printed1.jfif',
-          link: '/unstitched?type=printed',
-        },
-        {
-          label: 'Embroidered',
-          image: '/images/embroidary2.jfif',
-          link: '/unstitched?type=embroidered',
-        },
-        {
-          label: 'Velvet',
-          image: '/images/valvet.jfif',
-          link: '/unstitched?type=velvet',
-        },
-      ],
-    },
+  const defaultWomenImage = WOMEN_MENU.unstitched.defaultImage;
+  const defaultMenImage = MEN_MENU.menswear.defaultImage;
+  const { user } = useAuth(); // import useAuth
 
-    readyToWear: {
-      title: 'READY TO WEAR',
-      mainLink: '/ready-to-wear',
-      defaultImage: '/images/cords1.jfif',
-      items: [
-        {
-          label: 'Embroidered',
-          image: '/images/embroidary3.jfif',
-          link: '/ready-to-wear?type=embroidered',
-        },
-        {
-          label: 'Printed',
-          image: '/images/printed2.jfif',
-          link: '/ready-to-wear?type=printed',
-        },
-        {
-          label: 'Solids',
-          image: '/images/solid.jfif',
-          link: '/ready-to-wear?type=solids',
-        },
-        {
-          label: 'Co-ords',
-          image: '/images/Coords.jfif',
-          link: '/ready-to-wear?type=coords',
-        },
-        {
-          label: 'Formals',
-          image: '/images/formal.jfif',
-          link: '/ready-to-wear?type=formals',
-        },
-        {
-          label: 'Kurtis',
-          image: '/images/kurtis4.jfif',
-          link: '/ready-to-wear?type=kurtis',
-        },
-        {
-          label: 'Bottoms',
-          image: '/images/womenbottom.jfif',
-          link: '/ready-to-wear?type=bottoms',
-        },
-      ],
-    },
-
-    accessories: {
-      title: 'ACCESSORIES',
-      mainLink: '/accessories',
-      defaultImage: '/images/jewl.jfif',
-      items: [
-        {
-          label: 'Jewellery',
-          image: '/images/jewl.jfif',
-          link: '/accessories?cat=jewellery',
-        },
-
-        {
-          label: 'Shawls',
-          image: '/images/womenshawl1.jfif',
-          link: '/accessories?cat=shawls',
-        },
-
-        {
-          label: 'Hair Accessories',
-          image: '/images/scarf.jfif',
-          link: '/accessories?cat=hair-accessories',
-        },
-      ],
-    },
+  const goCart = (e) => {
+    e.preventDefault();
+    if (!user) return navigate('/login', { state: { pulse: true } });
+    navigate('/cart');
   };
 
-  // --------- MEN MENU DATA ----------
-  const menMenu = {
-    menswear: {
-      title: 'MENSWEAR',
-      mainLink: '/men?section=menswear', // ✅ menswear banner
-      defaultImage: '/images/menshirt5.jfif',
-      items: [
-        {
-          label: 'Kurta',
-          image: '/images/menkurti5.jfif',
-          link: '/men?section=menswear&category=kurta',
-        },
-        {
-          label: 'Shalwar Kameez',
-          image: '/images/menunstitched1.jfif',
-          link: '/men?section=menswear&category=shalwar-kameez',
-        },
-        {
-          label: 'Shirts',
-          image: '/images/menshirt1.jfif',
-          link: '/men?section=menswear&category=shirts',
-        },
-      ],
-    },
+  const goLoginPulse = (e) => {
+    e.preventDefault();
+
+    // ✅ already on login page? do not re-trigger pulse
+    if (routerLocation.pathname === '/login') return;
+
+    navigate('/login', { state: { pulse: true } });
   };
 
-  const defaultWomenImage = womenMenu.unstitched.defaultImage;
-  const defaultMenImage = menMenu.menswear.defaultImage;
+  const closeAll = useCallback(() => {
+    setOpenMega(null);
+    setPreviewImage(null);
+    setSuggestions([]);
+    setShowMobileMenu(false);
+    setShowSearchOverlay(false);
+  }, []);
+
+  useEffect(() => {
+    closeAll();
+  }, [routerLocation.pathname, closeAll]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    const lowerQ = searchQuery.toLowerCase();
+    const matches = allProducts.filter((p) => {
+      const title = String(p?.title || p?.name || '').toLowerCase();
+      const brand = String(p?.brand || '').toLowerCase();
+      return title.includes(lowerQ) || brand.includes(lowerQ);
+    });
+    setSuggestions(matches.slice(0, 6));
+  }, [searchQuery, allProducts]);
+
+  const safeImg = useCallback((p) => {
+    return (
+      p?.image ||
+      (Array.isArray(p?.images) && p.images[0]) ||
+      '/images/placeholder.png'
+    );
+  }, []);
+
+  const handleSearch = useCallback(() => {
+    const q = searchQuery.trim();
+    if (!q) return;
+    navigate(`/search?q=${encodeURIComponent(q)}`);
+    setSuggestions([]);
+    setShowSearchOverlay(false);
+    setOpenMega(null);
+  }, [navigate, searchQuery]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSearch();
+  };
+
+  const handleSuggestionClick = (prodId) => {
+    navigate(`/product/${prodId}`);
+    setSearchQuery('');
+    setSuggestions([]);
+    setShowSearchOverlay(false);
+    setOpenMega(null);
+  };
 
   const openWomenMega = () => {
     setOpenMega('women');
@@ -171,83 +245,41 @@ export default function Navbar() {
     setPreviewImage(defaultMenImage);
   };
 
-  const closeMega = () => {
+  const handleItemClick = (link) => {
+    if (!link) return;
+    navigate(link);
     setOpenMega(null);
     setPreviewImage(null);
   };
 
-  const handleItemClick = (link) => {
-    if (link) {
-      navigate(link);
-      closeMega();
-    }
+  const toggleExpand = (key) => {
+    setMobileExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setShowLocationBox(false); // Close other popups if open
-      closeMega();
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  // --------- SUGGESTIONS LOGIC ----------
-  const { products: allProducts } = useProducts();
-  const [suggestions, setSuggestions] = useState([]);
-
-  // Filter suggestions when query changes
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSuggestions([]);
-      return;
-    }
-    const lowerQ = searchQuery.toLowerCase();
-    const matches = allProducts.filter((p) => {
-      const title = (p.title || p.name || '').toLowerCase();
-      const brand = (p.brand || '').toLowerCase();
-      // Match title or brand
-      return title.includes(lowerQ) || brand.includes(lowerQ);
-    });
-    // Limit to top 5
-    setSuggestions(matches.slice(0, 5));
-  }, [searchQuery, allProducts]);
-
-  const handleSuggestionClick = (prodId) => {
-    navigate(`/product/${prodId}`);
-    setSuggestions([]);
-    setSearchQuery('');
-    closeMega();
-  };
+  const mobileIcon = (isOpen) =>
+    isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />;
 
   return (
     <>
-      {/* ========= TOP NAVBAR (unchanged look) ========= */}
       <header className="nav-wrapper">
         <div className="nav-container">
-          {/* Left: Brand */}
           <div className="nav-left">
             <button
               className="mobile-hamburger"
               onClick={() => setShowMobileMenu(true)}
             >
-              <Menu size={24} />
+              <Menu size={22} />
             </button>
+
             <Link to="/home" className="brand">
               <img
-                src="/images/logo1.png" // 🔥 yahan apna logo path do
+                src="/images/logo3.png"
                 alt="VestiVistora"
                 className="brand-logo"
               />
             </Link>
           </div>
 
-          {/* Middle: Location + Search */}
           <div className="nav-center">
             <div className="search-bar">
               <input
@@ -261,10 +293,7 @@ export default function Navbar() {
                 size={18}
                 className="search-icon"
                 onClick={handleSearch}
-                style={{ cursor: 'pointer' }}
               />
-
-              {/* SUGGESTIONS DROPDOWN */}
               {suggestions.length > 0 && (
                 <div className="search-suggestions">
                   {suggestions.map((s) => (
@@ -274,8 +303,8 @@ export default function Navbar() {
                       onClick={() => handleSuggestionClick(s.id)}
                     >
                       <img
-                        src={s.image}
-                        alt={s.title}
+                        src={safeImg(s)}
+                        alt={s.title || s.name}
                         className="suggestion-img"
                       />
                       <div className="suggestion-info">
@@ -288,27 +317,52 @@ export default function Navbar() {
               )}
             </div>
           </div>
-
-          {/* Right: Icons */}
           <div className="nav-actions">
+            {/* ✅ WISHLIST */}
             <div className="wishlist-wrapper">
-              <Link to="/wishlist" className="icon-btn">
+              <a
+                href="/wishlist"
+                className="icon-btn"
+                onClick={(e) => {
+                  if (!user) return goLoginPulse(e);
+                  e.preventDefault();
+                  navigate('/wishlist');
+                }}
+                aria-label="Wishlist"
+                title="Wishlist"
+              >
                 <Heart size={20} />
-              </Link>
-              {wishlist.length > 0 && (
+              </a>
+
+              {wishlist?.length > 0 && (
                 <span className="wishlist-badge">{wishlist.length}</span>
               )}
             </div>
 
-            <Link to="/login" className="icon-btn">
+            {/* ✅ USER / LOGIN */}
+            <a
+              href="/login"
+              className="icon-btn"
+              onClick={goLoginPulse}
+              aria-label="Login"
+              title="Login"
+            >
               <User size={20} />
-            </Link>
+            </a>
 
+            {/* ✅ CART */}
             <div className="cart-wrapper">
-              <Link to="/cart" className="icon-btn">
+              <a
+                href="/cart"
+                className="icon-btn"
+                onClick={goCart}
+                aria-label="Cart"
+                title="Cart"
+              >
                 <ShoppingCart size={20} />
-              </Link>
-              {cart.length > 0 && (
+              </a>
+
+              {cart?.length > 0 && (
                 <span className="cart-badge">{cart.length}</span>
               )}
             </div>
@@ -316,29 +370,26 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* ========= SECONDARY NAV: HOME / WOMEN / MEN / BRAND / CONTACT ========= */}
       {!hideSecondaryNav && (
         <div className="secondary-nav">
           <div className="main-menu-wrapper">
             <ul className="main-menu">
-              <li onMouseEnter={closeMega}>
+              <li onMouseEnter={() => setOpenMega(null)}>
                 <Link to="/home" className="main-menu-link">
                   Home
                 </Link>
               </li>
 
-              {/* WOMEN (mega menu on hover) */}
               <li
-                className="has-mega"
                 onMouseEnter={openWomenMega}
-                onMouseLeave={closeMega}
+                onMouseLeave={() => setOpenMega(null)}
               >
                 <button
                   type="button"
                   className="main-menu-link"
                   onClick={() => {
-                    navigate('/women'); // 🔥 open women page
-                    closeMega(); // close dropdown
+                    navigate('/women');
+                    setOpenMega(null);
                   }}
                 >
                   Women
@@ -348,7 +399,7 @@ export default function Navbar() {
                   <div className="mega-menu">
                     <div className="mega-inner">
                       <div className="mega-columns">
-                        {Object.values(womenMenu).map((col) => (
+                        {Object.values(WOMEN_MENU).map((col) => (
                           <div
                             key={col.title}
                             className="mega-col"
@@ -365,6 +416,7 @@ export default function Navbar() {
                             >
                               {col.title}
                             </button>
+
                             {col.items.map((item) => (
                               <button
                                 key={item.label}
@@ -373,8 +425,8 @@ export default function Navbar() {
                                 onMouseEnter={() =>
                                   setPreviewImage(
                                     item.image ||
-                                    col.defaultImage ||
-                                    defaultWomenImage
+                                      col.defaultImage ||
+                                      defaultWomenImage
                                   )
                                 }
                                 onClick={() => handleItemClick(item.link)}
@@ -397,18 +449,16 @@ export default function Navbar() {
                 )}
               </li>
 
-              {/* MEN (mega menu on hover) */}
               <li
-                className="has-mega"
                 onMouseEnter={openMenMega}
-                onMouseLeave={closeMega}
+                onMouseLeave={() => setOpenMega(null)}
               >
                 <button
                   type="button"
                   className="main-menu-link"
                   onClick={() => {
-                    navigate('/men'); // ✅ MEN banner
-                    closeMega();
+                    navigate('/men');
+                    setOpenMega(null);
                   }}
                 >
                   Men
@@ -418,7 +468,7 @@ export default function Navbar() {
                   <div className="mega-menu">
                     <div className="mega-inner">
                       <div className="mega-columns">
-                        {Object.values(menMenu).map((col) => (
+                        {Object.values(MEN_MENU).map((col) => (
                           <div
                             key={col.title}
                             className="mega-col"
@@ -428,7 +478,6 @@ export default function Navbar() {
                               )
                             }
                           >
-                            {/* 🔥 MENSWEAR / ACCESSORIES heading click se page open hoga */}
                             <button
                               type="button"
                               className="mega-heading-btn"
@@ -445,8 +494,8 @@ export default function Navbar() {
                                 onMouseEnter={() =>
                                   setPreviewImage(
                                     item.image ||
-                                    col.defaultImage ||
-                                    defaultMenImage
+                                      col.defaultImage ||
+                                      defaultMenImage
                                   )
                                 }
                                 onClick={() => handleItemClick(item.link)}
@@ -469,16 +518,13 @@ export default function Navbar() {
                 )}
               </li>
 
-              {/* BRAND (simple link) */}
-              <li>
+              <li onMouseEnter={() => setOpenMega(null)}>
                 <Link to="/brand" className="main-menu-link">
                   Brand
                 </Link>
               </li>
 
-              {/* CONTACT (simple link) */}
-
-              <li onMouseEnter={closeMega}>
+              <li onMouseEnter={() => setOpenMega(null)}>
                 <Link to="/contact" className="main-menu-link">
                   Contact
                 </Link>
@@ -488,17 +534,66 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* ========= LOCATION POPUP ========= */}
-      {showLocationBox && (
-        <LocationSelector
-          onClose={() => setShowLocationBox(false)}
-          onSelect={(city) => {
-            setSelectedLocation(city);
-            setShowLocationBox(false);
-          }}
-        />
+      {showSearchOverlay && (
+        <div
+          className="search-overlay"
+          onClick={() => setShowSearchOverlay(false)}
+        >
+          <div
+            className="search-overlay-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="search-overlay-top">
+              <div className="search-bar">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                />
+                <Search
+                  size={18}
+                  className="search-icon"
+                  onClick={handleSearch}
+                />
+                {suggestions.length > 0 && (
+                  <div className="search-suggestions">
+                    {suggestions.map((s) => (
+                      <div
+                        key={s.id}
+                        className="suggestion-item"
+                        onClick={() => handleSuggestionClick(s.id)}
+                      >
+                        <img
+                          src={safeImg(s)}
+                          alt={s.title || s.name}
+                          className="suggestion-img"
+                        />
+                        <div className="suggestion-info">
+                          <p className="suggestion-title">
+                            {s.title || s.name}
+                          </p>
+                          <p className="suggestion-price">PKR {s.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                className="icon-btn"
+                onClick={() => setShowSearchOverlay(false)}
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-      {/* ========= MOBILE MENU DRAWER ========= */}
+
       {showMobileMenu && (
         <div
           className="mobile-menu-overlay"
@@ -513,7 +608,7 @@ export default function Navbar() {
             className="mobile-close-btn"
             onClick={() => setShowMobileMenu(false)}
           >
-            <X size={24} />
+            <X size={22} />
           </button>
         </div>
 
@@ -528,40 +623,60 @@ export default function Navbar() {
             </Link>
           </li>
 
-          {/* WOMEN Accordion */}
           <li className="mobile-nav-item">
             <div
               className="mobile-nav-link"
-              onClick={() => setMobileExpanded(prev => ({ ...prev, women: !prev.women }))}
-              style={{ cursor: 'pointer' }}
+              onClick={() => toggleExpand('women')}
             >
               <span>Women</span>
-              {mobileExpanded.women ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              {mobileIcon(mobileExpanded.women)}
             </div>
 
             {mobileExpanded.women && (
-              <div style={{ background: '#fcfcfc', paddingLeft: '20px' }}>
-                <Link to="/unstitched" className="mobile-nav-link" onClick={() => setShowMobileMenu(false)} >Unstitched</Link>
-                <Link to="/ready-to-wear" className="mobile-nav-link" onClick={() => setShowMobileMenu(false)} >Ready to Wear</Link>
-                <Link to="/accessories" className="mobile-nav-link" onClick={() => setShowMobileMenu(false)} >Accessories</Link>
+              <div className="mobile-submenu">
+                <Link
+                  to="/unstitched"
+                  className="mobile-nav-link"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Unstitched
+                </Link>
+                <Link
+                  to="/ready-to-wear"
+                  className="mobile-nav-link"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Ready to Wear
+                </Link>
+                <Link
+                  to="/accessories"
+                  className="mobile-nav-link"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Accessories
+                </Link>
               </div>
             )}
           </li>
 
-          {/* MEN Accordion */}
           <li className="mobile-nav-item">
             <div
               className="mobile-nav-link"
-              onClick={() => setMobileExpanded(prev => ({ ...prev, men: !prev.men }))}
-              style={{ cursor: 'pointer' }}
+              onClick={() => toggleExpand('men')}
             >
               <span>Men</span>
-              {mobileExpanded.men ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              {mobileIcon(mobileExpanded.men)}
             </div>
 
             {mobileExpanded.men && (
-              <div style={{ background: '#fcfcfc', paddingLeft: '20px' }}>
-                <Link to="/men" className="mobile-nav-link" onClick={() => setShowMobileMenu(false)} >Menswear</Link>
+              <div className="mobile-submenu">
+                <Link
+                  to="/men"
+                  className="mobile-nav-link"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Menswear
+                </Link>
               </div>
             )}
           </li>

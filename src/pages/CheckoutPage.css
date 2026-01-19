@@ -3,7 +3,7 @@
 /* ============================= */
 
 .checkout-page {
-  margin-top: 120px; /* navbar ke neeche space */
+  margin-top: -10px; /* navbar ke neeche space */
   padding: 2rem;
   max-width: 1100px;
   margin-left: auto;
@@ -121,6 +121,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top;
 }
 
 .checkout-item-name {
@@ -180,5 +181,130 @@
 
   .checkout-page {
     padding: 1.2rem;
+  }
+}
+
+/* =========================================
+   ✅ CHECKOUT — MOBILE FRIENDLY + BRAND LINE
+   Paste at END of CheckoutPage.css
+   ========================================= */
+
+.checkout-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* ✅ Item row spacing */
+.checkout-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.checkout-item:last-child {
+  border-bottom: none;
+}
+
+.checkout-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* ✅ Brand style */
+.checkout-item-brand {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ✅ Price alignment */
+.checkout-item-price {
+  font-weight: 700;
+  color: #111;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* ✅ Make summary nicer */
+.checkout-summary {
+  background: #fff;
+}
+
+/* ✅ Desktop: keep summary visible */
+@media (min-width: 900px) {
+  .checkout-summary {
+    position: sticky;
+    top: 110px; /* navbar height */
+  }
+}
+
+/* ✅ Promo section responsive (remove inline styles issue) */
+.promo-section {
+  margin-top: 1rem;
+  display: flex;
+  gap: 10px;
+}
+
+.promo-section input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.promo-section button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ✅ Mobile layout improvements */
+@media (max-width: 768px) {
+  .checkout-page {
+    margin-top: 20px;
+    padding: 14px;
+  }
+
+  .checkout-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .checkout-form-container,
+  .checkout-summary {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .checkout-item-img {
+    width: 54px;
+    height: 54px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .checkout-item-name {
+    font-size: 14px;
+  }
+
+  .checkout-item-qty {
+    font-size: 12px;
+  }
+
+  /* promo wrap nicely */
+  .promo-section {
+    flex-direction: column;
+  }
+
+  .promo-section button {
+    width: 100%;
   }
 }

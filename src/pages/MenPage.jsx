@@ -1,5 +1,5 @@
 // ✅ src/pages/MenPage.jsx
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import MenBanner from '../components/men/MenBanner';
@@ -12,13 +12,13 @@ import { useProducts } from '../context/ProductContext';
 import './MenPage.css';
 
 export default function MenPage() {
-  const { products: allProducts = [], loading } = useProducts();
+  const { products: allProducts = [], loading } = useProducts() || {};
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const sectionQ = (searchParams.get('section') || '').toLowerCase(); // '' | menswear
-  const urlCategory = (searchParams.get('category') || '').toLowerCase(); // kurta | shalwar-kameez | shirts
+  const sectionQ = (searchParams.get('section') || '').toLowerCase();
+  const urlCategory = (searchParams.get('category') || '').toLowerCase();
 
   const isMenPath = location.pathname === '/men';
   const isRoot = isMenPath && !sectionQ;
@@ -33,7 +33,17 @@ export default function MenPage() {
     { key: 'shirts', label: 'Shirts', image: '/images/menshirt1.jfif' },
   ];
 
-  // filters state
+  // ---------------- MOBILE DETECT ----------------
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 800px)');
+    const onChange = () => setIsMobile(mq.matches);
+    onChange();
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, []);
+
+  // ---------------- FILTER STATE ----------------
   const [sorting, setSorting] = useState('popularity');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [priceMin, setPriceMin] = useState('');
@@ -42,9 +52,24 @@ export default function MenPage() {
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedFabrics, setSelectedFabrics] = useState([]);
+
+  // ✅ desktop default = four, mobile default = two
   const [gridType, setGridType] = useState('four');
 
-  const resetAllFilters = () => {
+  // ✅ mobile drawer
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  // ✅ keep grid valid on screen change
+  useEffect(() => {
+    if (isMobile) {
+      if (gridType !== 'two' && gridType !== 'three') setGridType('two');
+    } else {
+      if (gridType === 'three') setGridType('four');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile]);
+
+  const resetAllFilters = useCallback(() => {
     setSorting('popularity');
     setInStockOnly(false);
     setPriceMin('');
@@ -53,8 +78,8 @@ export default function MenPage() {
     setSelectedColors([]);
     setSelectedBrands([]);
     setSelectedFabrics([]);
-    setGridType('four');
-  };
+    setGridType(isMobile ? 'two' : 'four');
+  }, [isMobile]);
 
   useEffect(() => {
     resetAllFilters();
@@ -66,8 +91,7 @@ export default function MenPage() {
   };
 
   const filteredProducts = useMemo(() => {
-    // ✅ 1) STRICT: only menswear items
-    // Best rule: mainCategory === MENSWEAR OR section === menswear
+    // ✅ 1) STRICT men products only
     let items = (allProducts || []).filter((p) => {
       const mc = String(p.mainCategory || '')
         .toUpperCase()
@@ -78,62 +102,56 @@ export default function MenPage() {
       const cat = String(p.category || '')
         .toLowerCase()
         .trim();
-
-      // ✅ STRICT men products only
-      return mc === 'MENSWEAR' && sec === 'menswear' && cat === 'men';
+      return mc === 'MENSWEAR' || sec === 'menswear' || cat === 'men';
     });
+
+    // ✅ de-dupe by id
     items = Array.from(new Map(items.map((p) => [String(p.id), p])).values());
 
-    // ✅ 2) Remove duplicates by id (fixes 12 showing because merged twice)
-    items = Array.from(new Map(items.map((p) => [String(p.id), p])).values());
-
-    // ✅ 3) Category filter (kurta / shalwar-kameez / shirts)
+    // ✅ 2) Category filter
     if (urlCategory) {
       items = items.filter((p) => {
         const sub = String(p.subCategory || '')
           .toLowerCase()
           .trim();
-        const norm = sub.replace(/\s+/g, '-');
+        const norm = sub.replace(/[_\s]+/g, '-');
         return norm === urlCategory;
       });
     }
 
-    // ✅ 4) Sidebar filters
-    if (selectedColors.length > 0) {
+    // ✅ 3) Sidebar filters
+    if (selectedColors.length > 0)
       items = items.filter((p) => selectedColors.includes(p.color));
-    }
-
-    if (selectedSizes.length > 0) {
+    if (selectedSizes.length > 0)
       items = items.filter((p) => selectedSizes.includes(p.size));
-    }
-
-    if (selectedBrands.length > 0) {
+    if (selectedBrands.length > 0)
       items = items.filter((p) => selectedBrands.includes(p.brand));
-    }
 
     if (selectedFabrics.length > 0) {
       items = items.filter((p) => {
-        const v = String(p.fabric || p.material || '').trim();
-        return selectedFabrics.includes(v);
+        const normalize = (s) =>
+          String(s || '')
+            .trim()
+            .toLowerCase()
+            .replace(/&/g, 'and')
+            .replace(/\s+/g, ' ');
+        return selectedFabrics
+          .map(normalize)
+          .includes(normalize(p.fabric || p.material));
       });
     }
 
     const min = priceMin !== '' ? Number(priceMin) : null;
     const max = priceMax !== '' ? Number(priceMax) : null;
 
-    if (min !== null && !Number.isNaN(min)) {
+    if (min !== null && !Number.isNaN(min))
       items = items.filter((p) => Number(p.price || 0) >= min);
-    }
-
-    if (max !== null && !Number.isNaN(max)) {
+    if (max !== null && !Number.isNaN(max))
       items = items.filter((p) => Number(p.price || 0) <= max);
-    }
 
-    if (inStockOnly) {
-      items = items.filter((p) => p.inStock === true);
-    }
+    if (inStockOnly) items = items.filter((p) => p.inStock === true);
 
-    // ✅ 5) Sorting
+    // ✅ Sorting
     items.sort((a, b) => {
       if (sorting === 'lowhigh')
         return Number(a.price || 0) - Number(b.price || 0);
@@ -177,64 +195,141 @@ export default function MenPage() {
         />
       )}
 
+      {/* ✅ MOBILE FILTER DRAWER */}
+      {isMobile && (
+        <>
+          <div
+            className={`mobile-filter-overlay ${filterOpen ? 'open' : ''}`}
+            onClick={() => setFilterOpen(false)}
+          />
+          <div className={`mobile-filter-drawer ${filterOpen ? 'open' : ''}`}>
+            <div className="mobile-filter-drawer-header">
+              <div className="mobile-filter-drawer-title">Filters</div>
+              <button
+                className="mobile-filter-close"
+                onClick={() => setFilterOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <MenFiltersSidebar
+              sorting={sorting}
+              setSorting={setSorting}
+              inStockOnly={inStockOnly}
+              setInStockOnly={setInStockOnly}
+              priceMin={priceMin}
+              setPriceMin={setPriceMin}
+              priceMax={priceMax}
+              setPriceMax={setPriceMax}
+              selectedSizes={selectedSizes}
+              setSelectedSizes={setSelectedSizes}
+              selectedColors={selectedColors}
+              setSelectedColors={setSelectedColors}
+              selectedBrands={selectedBrands}
+              setSelectedBrands={setSelectedBrands}
+              selectedFabrics={selectedFabrics}
+              setSelectedFabrics={setSelectedFabrics}
+              activeCategory={urlCategory}
+              isRoot={!urlCategory}
+              onClearFilters={resetAllFilters}
+            />
+          </div>
+        </>
+      )}
+
       <div className="men-main">
-        <MenFiltersSidebar
-          sorting={sorting}
-          setSorting={setSorting}
-          inStockOnly={inStockOnly}
-          setInStockOnly={setInStockOnly}
-          priceMin={priceMin}
-          setPriceMin={setPriceMin}
-          priceMax={priceMax}
-          setPriceMax={setPriceMax}
-          selectedSizes={selectedSizes}
-          setSelectedSizes={setSelectedSizes}
-          selectedColors={selectedColors}
-          setSelectedColors={setSelectedColors}
-          selectedBrands={selectedBrands}
-          setSelectedBrands={setSelectedBrands}
-          selectedFabrics={selectedFabrics}
-          setSelectedFabrics={setSelectedFabrics}
-          activeCategory={urlCategory}
-          isRoot={!urlCategory}
-          onClearFilters={resetAllFilters}
-        />
+        {/* ✅ DESKTOP sidebar only */}
+        {!isMobile && (
+          <MenFiltersSidebar
+            sorting={sorting}
+            setSorting={setSorting}
+            inStockOnly={inStockOnly}
+            setInStockOnly={setInStockOnly}
+            priceMin={priceMin}
+            setPriceMin={setPriceMin}
+            priceMax={priceMax}
+            setPriceMax={setPriceMax}
+            selectedSizes={selectedSizes}
+            setSelectedSizes={setSelectedSizes}
+            selectedColors={selectedColors}
+            setSelectedColors={setSelectedColors}
+            selectedBrands={selectedBrands}
+            setSelectedBrands={setSelectedBrands}
+            selectedFabrics={selectedFabrics}
+            setSelectedFabrics={setSelectedFabrics}
+            activeCategory={urlCategory}
+            isRoot={!urlCategory}
+            onClearFilters={resetAllFilters}
+          />
+        )}
 
         <section className="men-products">
-          <div className="products-top-row">
-            <div>
-              <div className="products-count">
-                Showing {filteredProducts.length} item
-                {filteredProducts.length !== 1 ? 's' : ''}
-              </div>
+          {/* ✅ MOBILE row: Filter + + ONLY Grid 2 / 3 */}
+          {isMobile && (
+            <div className="mobile-filter-row">
+              <button
+                className="mobile-filter-btn"
+                onClick={() => setFilterOpen(true)}
+              >
+                Filter +
+              </button>
 
-              <div className="men-subline">
-                Men • Menswear
-                {urlCategory ? ` • ${urlCategory.replace(/-/g, ' ')}` : ''}
+              <div className="grid-icons">
+                <span
+                  className={gridType === 'two' ? 'active' : ''}
+                  onClick={() => setGridType('two')}
+                  title="2 Columns"
+                >
+                  ▦
+                </span>
+                <span
+                  className={gridType === 'three' ? 'active' : ''}
+                  onClick={() => setGridType('three')}
+                  title="3 Columns"
+                >
+                  ▤
+                </span>
               </div>
             </div>
+          )}
 
-            <div className="grid-icons">
-              <span
-                className={gridType === 'two' ? 'active' : ''}
-                onClick={() => setGridType('two')}
-              >
-                ≡
-              </span>
-              <span
-                className={gridType === 'four' ? 'active' : ''}
-                onClick={() => setGridType('four')}
-              >
-                ▤
-              </span>
-              <span
-                className={gridType === 'six' ? 'active' : ''}
-                onClick={() => setGridType('six')}
-              >
-                ▦
-              </span>
+          {/* ✅ DESKTOP top row */}
+          {!isMobile && (
+            <div className="products-top-row">
+              <div>
+                <div className="products-count">
+                  Showing {filteredProducts.length} item
+                  {filteredProducts.length !== 1 ? 's' : ''}
+                </div>
+                <div className="men-subline">
+                  Men • Menswear
+                  {urlCategory ? ` • ${urlCategory.replace(/-/g, ' ')}` : ''}
+                </div>
+              </div>
+
+              <div className="grid-icons">
+                <span
+                  className={gridType === 'two' ? 'active' : ''}
+                  onClick={() => setGridType('two')}
+                >
+                  ≡
+                </span>
+                <span
+                  className={gridType === 'four' ? 'active' : ''}
+                  onClick={() => setGridType('four')}
+                >
+                  ▤
+                </span>
+                <span
+                  className={gridType === 'six' ? 'active' : ''}
+                  onClick={() => setGridType('six')}
+                >
+                  ▦
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {filteredProducts.length === 0 && (
             <div className="no-results">No Result Found</div>

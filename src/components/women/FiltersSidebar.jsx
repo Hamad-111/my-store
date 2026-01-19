@@ -135,7 +135,7 @@ export default function FiltersSidebar({
     sorting !== 'popularity';
 
   return (
-    <div className="filters-sidebar">
+    <aside className="filters-sidebar">
       {/* ✅ CLEAR BUTTON */}
       <button
         type="button"
@@ -357,6 +357,6 @@ export default function FiltersSidebar({
           </div>
         </div>
       )}
-    </div>
+    </aside>
   );
 }

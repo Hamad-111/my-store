@@ -352,3 +352,192 @@ body {
   font-size: 1rem;
   line-height: 1.5;
 }
+
+/* =========================
+   MOBILE FIX PACK (ABOUT)
+   Paste at END of file
+   ========================= */
+
+/* ✅ Fix horizontal scroll (100vw causes overflow with padding) */
+.about-section {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ✅ HERO: mobile viewport safe + better spacing */
+@media (max-width: 900px) {
+  .clothes-hero {
+    min-height: 70vh; /* ✅ instead of 100vh */
+    height: auto;
+    padding: 2.4rem 1.2rem;
+    gap: 16px;
+  }
+
+  .clothes-hero-content {
+    width: 100%;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+
+  .clothes-hero-content h1 {
+    font-size: 2.2rem;
+    line-height: 1.15;
+  }
+
+  .clothes-hero-content p {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 520px;
+    margin: 12px auto 0;
+  }
+
+  /* ✅ Optional: hide side image block on mobile */
+  .clothes-hero-image {
+    display: none;
+  }
+}
+
+/* small phones */
+@media (max-width: 520px) {
+  .clothes-hero {
+    min-height: 60vh;
+    padding: 2rem 1rem;
+  }
+
+  .clothes-hero-content h1 {
+    font-size: 1.9rem;
+  }
+
+  .clothes-hero-content p {
+    font-size: 0.95rem;
+  }
+}
+
+/* ✅ CATEGORY heading spacing */
+@media (max-width: 600px) {
+  .main-category-heading {
+    margin-top: 2.2rem;
+    margin-bottom: 1rem;
+    padding: 0 12px;
+  }
+
+  .main-category-heading h1 {
+    font-size: 1.7rem;
+    line-height: 1.2;
+  }
+
+  .category-section {
+    padding: 1.6rem 1rem 2.4rem;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 520px;
+  }
+
+  .category-card {
+    max-width: none;
+    padding: 1rem 0.8rem;
+    border-radius: 16px;
+  }
+
+  .cat-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .category-card p {
+    font-size: 0.95rem;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .category-grid {
+    grid-template-columns: 1fr; /* ✅ very small phones */
+    max-width: 320px;
+  }
+}
+
+/* ✅ RELIABLE section mobile tuning */
+@media (max-width: 768px) {
+  .reliable-section {
+    padding: 3.2rem 1rem;
+  }
+
+  .reliable-heading {
+    font-size: 1.7rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .reliable-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .reliable-card {
+    max-width: 520px;
+    padding: 1.4rem 1.1rem;
+    text-align: left;
+  }
+
+  .reliable-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+  }
+
+  .reliable-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .reliable-card p {
+    font-size: 0.92rem;
+  }
+}
+
+/* ✅ ABOUT values section */
+@media (max-width: 900px) {
+  .about-section {
+    padding: 4rem 1rem 2.5rem;
+    min-height: auto;
+  }
+
+  .about-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .about-card {
+    height: 220px;
+    padding: 1.2rem;
+    border-radius: 14px;
+  }
+
+  .about-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .about-card p {
+    font-size: 0.9rem;
+  }
+
+  .about-footer {
+    margin-top: 1.8rem;
+    padding: 1.4rem;
+  }
+
+  .about-footer h2 {
+    font-size: 1.2rem;
+  }
+
+  .about-footer p {
+    font-size: 0.95rem;
+  }
+}

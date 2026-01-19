@@ -1,6 +1,6 @@
 // src/pages/AccessoriesPage.jsx
-import React, { useState, useMemo, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import AccessoriesBanner from '../components/accessories/AccessoriesBanner';
 import AccessoriesTypeHeader from '../components/accessories/AccessoriesTypeHeader';
@@ -14,8 +14,19 @@ import './WomenPage.css';
 const ACCESSORY_CATEGORIES = ['JEWELLRY', 'SHAWLS', 'HAIR ACCESSORIES'];
 
 export default function AccessoriesPage() {
-  const { products = [], loading } = useProducts();
+  const { products = [], loading } = useProducts() || {};
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // ---------------- MOBILE DETECT ----------------
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 800px)');
+    const onChange = () => setIsMobile(mq.matches);
+    onChange();
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, []);
 
   // ✅ Keep urlCat as-is (don’t convert hyphen to space)
   const urlCat = (searchParams.get('cat') || '').toLowerCase().trim();
@@ -25,14 +36,10 @@ export default function AccessoriesPage() {
     urlCat === 'jewellery'
       ? 'JEWELLRY'
       : urlCat === 'shawls'
-      ? 'SHAWLS'
-      : urlCat === 'sunglasses'
-      ? 'SUNGLASSES'
-      : urlCat === 'scarves'
-      ? 'SCARVES'
-      : urlCat === 'hair-accessories'
-      ? 'HAIR ACCESSORIES'
-      : null;
+        ? 'SHAWLS'
+        : urlCat === 'hair-accessories'
+          ? 'HAIR ACCESSORIES'
+          : null;
 
   // ---------- FILTER STATE ----------
   const [sorting, setSorting] = useState('popularity');
@@ -48,7 +55,24 @@ export default function AccessoriesPage() {
   const [selectedTone, setSelectedTone] = useState([]);
 
   const [activeSubCategory, setActiveSubCategory] = useState(null);
+
+  // ✅ desktop default = four, mobile default = two
   const [gridType, setGridType] = useState('four');
+
+  // ✅ mobile drawer
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  // ✅ keep grid valid on screen change
+  useEffect(() => {
+    const sub = searchParams.get('sub');
+    setActiveSubCategory(sub || null);
+    if (isMobile) {
+      if (gridType !== 'two' && gridType !== 'three') setGridType('two');
+    } else {
+      if (gridType === 'three') setGridType('four');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile, searchParams]);
 
   // ✅ RESET ALL
   const resetAllFilters = useCallback(() => {
@@ -65,20 +89,22 @@ export default function AccessoriesPage() {
     setSelectedTone([]);
 
     setActiveSubCategory(null);
-    setGridType('four');
-  }, []);
+    setGridType(isMobile ? 'two' : 'four');
+  }, [isMobile]);
 
   const bannerKey = urlCat || 'accessories';
 
   const filteredProducts = useMemo(() => {
     // only accessories (limited)
-    let items = products.filter((p) =>
-      ACCESSORY_CATEGORIES.includes(p.mainCategory)
+    let items = (products || []).filter((p) =>
+      ACCESSORY_CATEGORIES.includes(String(p.mainCategory || '').toUpperCase())
     );
 
     // category filter (if any)
     if (mainCategory) {
-      items = items.filter((p) => (p.mainCategory || '') === mainCategory);
+      items = items.filter(
+        (p) => String(p.mainCategory || '').toUpperCase() === mainCategory
+      );
     }
 
     // subcategory filter
@@ -119,23 +145,21 @@ export default function AccessoriesPage() {
     const min = priceMin !== '' ? Number(priceMin) : null;
     const max = priceMax !== '' ? Number(priceMax) : null;
 
-    if (min !== null && !Number.isNaN(min)) {
-      items = items.filter((p) => (p.price || 0) >= min);
-    }
-    if (max !== null && !Number.isNaN(max)) {
-      items = items.filter((p) => (p.price || 0) <= max);
-    }
+    if (min !== null && !Number.isNaN(min))
+      items = items.filter((p) => Number(p.price || 0) >= min);
+    if (max !== null && !Number.isNaN(max))
+      items = items.filter((p) => Number(p.price || 0) <= max);
 
     // stock
-    if (inStockOnly) {
-      items = items.filter((p) => p.inStock);
-    }
+    if (inStockOnly) items = items.filter((p) => p.inStock);
 
     // sorting
     items.sort((a, b) => {
-      if (sorting === 'lowhigh') return (a.price || 0) - (b.price || 0);
-      if (sorting === 'highlow') return (b.price || 0) - (a.price || 0);
-      return (b.popularity || 0) - (a.popularity || 0);
+      if (sorting === 'lowhigh')
+        return Number(a.price || 0) - Number(b.price || 0);
+      if (sorting === 'highlow')
+        return Number(b.price || 0) - Number(a.price || 0);
+      return Number(b.popularity || 0) - Number(a.popularity || 0);
     });
 
     return items;
@@ -172,62 +196,147 @@ export default function AccessoriesPage() {
       <AccessoriesTypeHeader
         mainCategory={mainCategory}
         activeSubCategory={activeSubCategory}
-        onSubCategoryChange={setActiveSubCategory}
+        onSubCategoryChange={(subKey) => {
+          setActiveSubCategory(subKey);
+
+          const params = new URLSearchParams(searchParams.toString());
+          params.set('sub', subKey); // ✅ URL set
+          navigate(`/accessories?${params.toString()}`);
+        }}
       />
 
+      {/* ✅ MOBILE FILTER DRAWER */}
+      {isMobile && (
+        <>
+          <div
+            className={`mobile-filter-overlay ${filterOpen ? 'open' : ''}`}
+            onClick={() => setFilterOpen(false)}
+          />
+          <div className={`mobile-filter-drawer ${filterOpen ? 'open' : ''}`}>
+            <div className="mobile-filter-drawer-header">
+              <div className="mobile-filter-drawer-title">Filters</div>
+              <button
+                className="mobile-filter-close"
+                onClick={() => setFilterOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <AccessoriesFiltersSidebar
+              mainCategory={mainCategory}
+              sorting={sorting}
+              setSorting={setSorting}
+              inStockOnly={inStockOnly}
+              setInStockOnly={setInStockOnly}
+              priceMin={priceMin}
+              setPriceMin={setPriceMin}
+              priceMax={priceMax}
+              setPriceMax={setPriceMax}
+              selectedBrands={selectedBrands}
+              setSelectedBrands={setSelectedBrands}
+              selectedColors={selectedColors}
+              setSelectedColors={setSelectedColors}
+              selectedMaterials={selectedMaterials}
+              setSelectedMaterials={setSelectedMaterials}
+              selectedSizes={selectedSizes}
+              setSelectedSizes={setSelectedSizes}
+              selectedTone={selectedTone}
+              setSelectedTone={setSelectedTone}
+              onClearFilters={resetAllFilters}
+            />
+          </div>
+        </>
+      )}
+
       <div className="women-main">
-        <AccessoriesFiltersSidebar
-          mainCategory={mainCategory}
-          sorting={sorting}
-          setSorting={setSorting}
-          inStockOnly={inStockOnly}
-          setInStockOnly={setInStockOnly}
-          priceMin={priceMin}
-          setPriceMin={setPriceMin}
-          priceMax={priceMax}
-          setPriceMax={setPriceMax}
-          selectedBrands={selectedBrands}
-          setSelectedBrands={setSelectedBrands}
-          selectedColors={selectedColors}
-          setSelectedColors={setSelectedColors}
-          selectedMaterials={selectedMaterials}
-          setSelectedMaterials={setSelectedMaterials}
-          selectedSizes={selectedSizes}
-          setSelectedSizes={setSelectedSizes}
-          selectedTone={selectedTone}
-          setSelectedTone={setSelectedTone}
-          onClearFilters={resetAllFilters}
-        />
+        {/* ✅ DESKTOP sidebar only */}
+        {!isMobile && (
+          <AccessoriesFiltersSidebar
+            mainCategory={mainCategory}
+            sorting={sorting}
+            setSorting={setSorting}
+            inStockOnly={inStockOnly}
+            setInStockOnly={setInStockOnly}
+            priceMin={priceMin}
+            setPriceMin={setPriceMin}
+            priceMax={priceMax}
+            setPriceMax={setPriceMax}
+            selectedBrands={selectedBrands}
+            setSelectedBrands={setSelectedBrands}
+            selectedColors={selectedColors}
+            setSelectedColors={setSelectedColors}
+            selectedMaterials={selectedMaterials}
+            setSelectedMaterials={setSelectedMaterials}
+            selectedSizes={selectedSizes}
+            setSelectedSizes={setSelectedSizes}
+            selectedTone={selectedTone}
+            setSelectedTone={setSelectedTone}
+            onClearFilters={resetAllFilters}
+          />
+        )}
 
         <section className="women-products">
-          <div className="products-top-row">
-            <div className="products-count">
-              Showing {filteredProducts.length} item
-              {filteredProducts.length !== 1 ? 's' : ''}{' '}
-              {mainCategory ? `in ${mainCategory}` : ''}
-            </div>
+          {/* ✅ MOBILE row: Filter + + ONLY Grid 2 / 3 */}
+          {isMobile && (
+            <div className="mobile-filter-row">
+              <button
+                className="mobile-filter-btn"
+                onClick={() => setFilterOpen(true)}
+              >
+                Filter +
+              </button>
 
-            <div className="grid-icons">
-              <span
-                className={gridType === 'two' ? 'active' : ''}
-                onClick={() => setGridType('two')}
-              >
-                ≡
-              </span>
-              <span
-                className={gridType === 'four' ? 'active' : ''}
-                onClick={() => setGridType('four')}
-              >
-                ▤
-              </span>
-              <span
-                className={gridType === 'six' ? 'active' : ''}
-                onClick={() => setGridType('six')}
-              >
-                ▦
-              </span>
+              <div className="grid-icons">
+                <span
+                  className={gridType === 'two' ? 'active' : ''}
+                  onClick={() => setGridType('two')}
+                  title="2 Columns"
+                >
+                  ▦
+                </span>
+                <span
+                  className={gridType === 'three' ? 'active' : ''}
+                  onClick={() => setGridType('three')}
+                  title="3 Columns"
+                >
+                  ▤
+                </span>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* ✅ DESKTOP top row (old) */}
+          {!isMobile && (
+            <div className="products-top-row">
+              <div className="products-count">
+                Showing {filteredProducts.length} item
+                {filteredProducts.length !== 1 ? 's' : ''}{' '}
+                {mainCategory ? `in ${mainCategory}` : ''}
+              </div>
+
+              <div className="grid-icons">
+                <span
+                  className={gridType === 'two' ? 'active' : ''}
+                  onClick={() => setGridType('two')}
+                >
+                  ≡
+                </span>
+                <span
+                  className={gridType === 'four' ? 'active' : ''}
+                  onClick={() => setGridType('four')}
+                >
+                  ▤
+                </span>
+                <span
+                  className={gridType === 'six' ? 'active' : ''}
+                  onClick={() => setGridType('six')}
+                >
+                  ▦
+                </span>
+              </div>
+            </div>
+          )}
 
           {filteredProducts.length === 0 && (
             <div className="no-results">No Result Found</div>

@@ -9,21 +9,20 @@
 .bs-wrapper {
   display: flex;
   gap: 50px;
+  align-items: stretch; /* ✅ banner + content same height */
 }
 
 /* LEFT BANNER */
 .bs-banner {
   width: 270px;
-  height: 500px;
+  height: auto; /* ✅ remove fixed 500px */
+  min-height: 100%; /* ✅ stretch */
+  align-self: stretch;
 
   background-image: url('/images/side.jfif');
   background-repeat: no-repeat;
-
-  /* 🔥 IMPORTANT PART */
   background-size: auto 100%;
-  /* height full, width auto */
   background-position: center;
-  /* image center rahe */
 
   border-radius: 0;
   position: relative;
@@ -173,5 +172,88 @@
 
   .bs-section {
     padding: 30px 20px;
+  }
+}
+/* =========================
+   MOBILE LAYOUT (banner + 2x2)
+   ========================= */
+
+@media (max-width: 900px) {
+  .bs-section {
+    padding: 20px 14px;
+  }
+
+  .bs-wrapper {
+    flex-direction: column; /* banner on top, content below */
+    gap: 18px;
+  }
+
+  /* Banner on top */
+  .bs-banner {
+    width: 100%;
+    height: 220px; /* mobile friendly height */
+    background-size: cover; /* looks better on full width */
+    background-position: center;
+    border-radius: 10px;
+  }
+
+  .bordered-box {
+    padding: 12px;
+  }
+
+  /* ✅ 2 columns on mobile (2x2 if you show 4 products) */
+  .bs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+/* small phones */
+@media (max-width: 520px) {
+  .bs-banner {
+    height: 200px;
+  }
+
+  .bs-title {
+    font-size: 1.5rem;
+  }
+
+  .bs-desc {
+    font-size: 13px;
+  }
+
+  .bs-small-btn {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+
+  .bs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+/* ✅ FORCE 3 columns on mobile for BestSeller grid */
+@media (max-width: 900px) {
+  .bs-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px;
+  }
+}
+
+/* very small phones */
+@media (max-width: 520px) {
+  .bs-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+}
+@media (max-width: 900px) {
+  .shared-card-image img {
+    object-position: top;
+  }
+}
+@media (max-width: 900px) {
+  .bs-banner {
+    display: none; /* ✅ mobile pe banner hata do */
   }
 }

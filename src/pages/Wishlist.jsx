@@ -1,30 +1,25 @@
-// src/pages/Wishlist.jsx
 import React, { useEffect } from 'react';
 import './Wishlist.css';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Wishlist() {
-  const { wishlist, removeFromWishlist, isLoggedIn } = useWishlist();
+  const { wishlist = [], removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  // ✅ block wishlist for guest
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate('/signup');
-    }
-  }, [isLoggedIn, navigate]);
+  // ✅ your AuthContext provides `loading`
+  const { user, authReady } = useAuth();
 
-  // Hide footer only on wishlist page
   useEffect(() => {
-    const footer = document.querySelector('footer');
-    if (footer) footer.style.display = 'none';
-    return () => {
-      if (footer) footer.style.display = 'block';
-    };
-  }, []);
+    if (!authReady) return;
+    if (!user) navigate('/login', { state: { pulse: true }, replace: true });
+  }, [user, authReady, navigate]);
+
+  if (!authReady) return null;
+  if (!user) return null;
 
   const handleAddToCart = (item) => {
     addToCart({
@@ -36,20 +31,19 @@ export default function Wishlist() {
       salePercent: item.salePercent || 0,
       originalPrice: item.originalPrice || item.price,
       qty: 1,
+      size: item.size || null,
     });
     navigate('/cart');
   };
 
-  // ✅ while redirecting (avoid flicker)
-  if (!isLoggedIn) return null;
+  // ❌ REMOVE THIS (this was causing the error)
+  // if (!isLoggedIn) return null;
 
-  // Empty
   if (wishlist.length === 0) {
     return (
       <div className="wishlist-page">
         <div className="wishlist-content">
           <h2 className="wishlist-title">My Wishlist</h2>
-
           <div className="empty-wishlist">
             <div className="empty-icon">
               <div className="icon-circle">♡</div>
@@ -68,7 +62,6 @@ export default function Wishlist() {
     );
   }
 
-  // Has items
   return (
     <div className="wishlist-page">
       <div className="wishlist-content">
@@ -82,7 +75,6 @@ export default function Wishlist() {
               onClick={() => navigate(`/product/${item.id}`)}
             >
               <img src={item.image} alt={item.name} className="wishlist-img" />
-
               <h4 className="wishlist-name">{item.name}</h4>
 
               {item.brand && (

@@ -422,3 +422,134 @@
     font-size: 12px;
   }
 }
+/* =========================================
+   ✅ MOBILE FILTER DRAWER (MEN)
+   Paste at END of MenPage.css
+   ========================================= */
+
+/* show filter row only on mobile */
+.mobile-filter-row {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .mobile-filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 8px 0 12px;
+  }
+
+  .mobile-filter-btn {
+    border: 1px solid #111;
+    background: #111;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+  }
+
+  .mobile-filter-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* ✅ mobile pe normal sidebar hide (drawer use hoga) */
+  .men-main > .filters-sidebar.men-filters {
+    display: none !important;
+  }
+}
+
+/* overlay */
+.mobile-filter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+.mobile-filter-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* drawer */
+.mobile-filter-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: min(86vw, 360px);
+  height: 100vh;
+  background: #fff;
+  z-index: 9999;
+  transform: translateX(-105%);
+  transition: transform 0.22s ease;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.mobile-filter-drawer.open {
+  transform: translateX(0);
+}
+
+/* drawer header */
+.mobile-filter-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 12px;
+}
+
+.mobile-filter-drawer-title {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mobile-filter-close {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+/* ✅ GRID 3 SUPPORT */
+.products-grid-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* ✅ Mobile: ONLY 2 or 3 columns */
+@media (max-width: 600px) {
+  .products-grid-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .products-grid-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  /* optional: image heights */
+  .products-grid-two .product-image {
+    height: 300px !important;
+  }
+  .products-grid-three .product-image {
+    height: 160px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .products-grid-three .product-image {
+    height: 145px !important;
+  }
+}

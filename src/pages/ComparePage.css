@@ -448,3 +448,146 @@
 .compare-right-col {
   padding-right: 12px;
 }
+/* =========================================
+   ✅ COMPARE PAGE — MOBILE FIX PACK
+   Paste at END of ComparePage.css
+   ========================================= */
+
+.compare-page {
+  overflow-x: hidden;
+}
+
+/* ✅ Remove negative margins on mobile (BIG FIX) */
+@media (max-width: 900px) {
+  .compare-table-wrap {
+    margin-left: 0 !important;
+    padding: 12px 12px;
+  }
+
+  .comparison-card {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ✅ Tablet & Mobile layout: stack base + slots */
+@media (max-width: 900px) {
+  .compare-main {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .compare-left-col,
+  .compare-right-col {
+    width: 100% !important;
+  }
+
+  /* base card full width */
+  .comparison-card {
+    height: auto !important;
+    padding: 14px;
+  }
+
+  .compare-image {
+    width: 180px;
+    height: 200px;
+  }
+
+  .btn-add {
+    width: 100% !important;
+  }
+
+  /* Slots row wrap */
+  .compare-slots-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* 2 cards per row on tablet */
+  .compare-slot {
+    flex: 0 0 calc(50% - 10px) !important;
+    max-width: calc(50% - 10px) !important;
+  }
+
+  .slot-inner {
+    height: auto !important;
+    min-height: 420px;
+  }
+
+  .slot-filter select {
+    width: 100px;
+  }
+
+  /* suggestion list nice height */
+  .compare-suggestions {
+    max-height: 220px;
+  }
+}
+
+/* ✅ Phone: 1 slot per row (best usability) */
+@media (max-width: 600px) {
+  .compare-page {
+    padding: 16px 12px;
+  }
+
+  .compare-slot {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  .slot-inner {
+    min-height: 420px;
+  }
+
+  /* Filters: 3 in a row usually tight, so allow wrap */
+  .slot-filters-row {
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .slot-filter {
+    flex: 1;
+    min-width: 30%;
+  }
+
+  .slot-filter select {
+    width: 100% !important;
+    font-size: 12px;
+  }
+
+  .slot-thumb {
+    width: 160px;
+    height: 180px;
+  }
+
+  /* Suggestion item more compact */
+  .suggestion-item img {
+    width: 44px;
+    height: 52px;
+  }
+}
+
+/* ✅ Table: make it scroll horizontally on small screens */
+@media (max-width: 900px) {
+  .compare-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .compare-table {
+    min-width: 900px; /* table stays readable */
+  }
+}
+
+/* ✅ Ultra small phones */
+@media (max-width: 420px) {
+  .compare-image {
+    width: 160px;
+    height: 180px;
+  }
+
+  .slot-thumb {
+    width: 140px;
+    height: 160px;
+  }
+}

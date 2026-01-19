@@ -50,7 +50,12 @@ export default function AccessoriesTypeHeader({
               className={`u-type-style-circle ${
                 urlCat === c.key ? 'active' : ''
               }`}
-              onClick={() => navigate(`/accessories?cat=${c.key}`)}
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                params.set('cat', c.key);
+                params.delete('sub'); // ✅ cat change pe sub reset
+                navigate(`/accessories?${params.toString()}`);
+              }}
             >
               <div className="u-type-img-circle-small">
                 <img src={c.img} alt={c.label} />
