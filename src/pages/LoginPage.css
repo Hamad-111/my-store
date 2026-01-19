@@ -9,15 +9,18 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 110px 16px 40px; /* top padding for fixed navbar */
-  margin: 0; /* ✅ remove left margin */
+  padding: 110px 16px 40px;
+  /* top padding for fixed navbar */
+  margin: 0;
+  /* ✅ remove left margin */
 }
 
 .login-card {
   background: #fff;
   border-radius: 10px;
   width: 100%;
-  max-width: 520px; /* ✅ center and responsive */
+  max-width: 520px;
+  /* ✅ center and responsive */
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   animation: fadeIn 0.4s ease-in-out;
@@ -97,14 +100,13 @@ body {
     opacity: 0;
     transform: scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
-<<<<<<< Updated upstream
 }
-=======
-}
+
 /* ✅ Login Card Pulse/Blink */
 .login-card.pulse {
   animation: pulseBlink 0.9s ease-in-out 2;
@@ -115,10 +117,12 @@ body {
     transform: scale(1);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   }
+
   50% {
     transform: scale(1.03);
     box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
   }
+
   100% {
     transform: scale(1);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
@@ -154,4 +158,3 @@ body {
   opacity: 0.7;
   cursor: not-allowed;
 }
->>>>>>> Stashed changes
